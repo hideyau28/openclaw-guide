@@ -1,5 +1,5 @@
 export const SITE_NAME = "OpenClaw 繁中教學站";
-export const SITE_URL = "https://openclaw-guide.vercel.app";
+export const SITE_URL = "https://openclaw-guide-mauve.vercel.app";
 export const SITE_DESCRIPTION =
   "OpenClaw 開源 AI Agent 繁體中文實戰教學 — 安全設定、部署指南、MCP 開發、自動化工作流";
 export const AUTHOR = "OpenClaw 繁中教學站";
@@ -13,11 +13,27 @@ export type Category = {
 export const CATEGORIES: readonly Category[] = [
   { slug: "start", name: "快速入門", description: "由零開始認識 OpenClaw" },
   { slug: "install", name: "安裝教學", description: "各平台安裝同設定指南" },
-  { slug: "security", name: "安全設定", description: "保護你的 AI Agent 免受攻擊" },
+  {
+    slug: "security",
+    name: "安全設定",
+    description: "保護你的 AI Agent 免受攻擊",
+  },
   { slug: "troubleshoot", name: "排錯中心", description: "常見問題一站搞掂" },
-  { slug: "use-cases", name: "實戰教學", description: "真實應用場景同自動化工作流" },
-  { slug: "compare", name: "比較評測", description: "OpenClaw 同其他工具嘅比較" },
-  { slug: "skills", name: "Skills 市集", description: "OpenClaw Skills 開發同安全指南" },
+  {
+    slug: "use-cases",
+    name: "實戰教學",
+    description: "真實應用場景同自動化工作流",
+  },
+  {
+    slug: "compare",
+    name: "比較評測",
+    description: "OpenClaw 同其他工具嘅比較",
+  },
+  {
+    slug: "skills",
+    name: "Skills 市集",
+    description: "OpenClaw Skills 開發同安全指南",
+  },
 ] as const;
 
 export const NAV_ITEMS = [
@@ -32,7 +48,10 @@ export const NAV_ITEMS = [
 
 export type CtaType = "pdf" | "setup" | "consultation" | "newsletter";
 
-export const CTA_CONFIG: Record<CtaType, { title: string; description: string; href: string; buttonText: string }> = {
+export const CTA_CONFIG: Record<
+  CtaType,
+  { title: string; description: string; href: string; buttonText: string }
+> = {
   pdf: {
     title: "免費下載 PDF 懶人包",
     description: "一次打包所有安全設定步驟，離線也能跟住做。",
