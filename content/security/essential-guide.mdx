@@ -1,0 +1,197 @@
+---
+title: "OpenClaw 安全設定完整指南：由零開始保護你的 AI Agent"
+description: "一步步教你設定 OpenClaw 嘅安全防護，包括 API Key 管理、權限控制、Prompt Injection 防禦，適合所有用戶。"
+category: "security"
+slug: "essential-guide"
+date: "2026-03-10"
+lastVerified: "2026-03-10"
+openclawVersion: "v3.2.1"
+readingTime: "12 分鐘"
+seoKeywords:
+  - "OpenClaw 安全"
+  - "AI Agent 安全設定"
+  - "Prompt Injection 防禦"
+  - "OpenClaw 教學"
+  - "AI Agent 香港"
+schemaType: "HowTo"
+relatedArticles:
+  - "deployment/docker-setup"
+  - "mcp-dev/first-plugin"
+ctaType: "pdf"
+---
+
+## TL;DR
+
+OpenClaw 預設配置並不安全。你需要手動設定 API Key 加密、檔案系統權限、網絡存取限制、同 Prompt Injection 防禦，先可以安全咁喺生產環境使用。
+
+<Callout variant="danger">
+**警告：** 唔好喺未做安全設定嘅情況下將 OpenClaw 暴露到公網。以下 5 大風險每一個都可以導致資料外洩。
+</Callout>
+
+## 5 大安全風險
+
+### 1. API Key 外洩
+
+OpenClaw 需要連接各種 LLM API。如果 API Key 被硬編碼喺設定檔入面，任何有存取權嘅人都可以偷到你嘅 Key。
+
+**解決方案：** 使用環境變數或者 Secret Manager。
+
+```bash
+# 錯誤做法 — 唔好咁做！
+OPENAI_API_KEY=sk-xxxxxxxxxxxx
+
+# 正確做法 — 使用 .env 檔案 + .gitignore
+echo "OPENAI_API_KEY=sk-xxxxxxxxxxxx" >> .env
+echo ".env" >> .gitignore
+```
+
+### 2. 檔案系統無限制存取
+
+預設情況下，OpenClaw 可以讀寫任何檔案。攻擊者可以透過 Prompt Injection 令 Agent 讀取敏感檔案。
+
+```yaml
+# openclaw.config.yaml
+filesystem:
+  allowed_paths:
+    - ./workspace
+    - ./data
+  denied_paths:
+    - /etc
+    - ~/.ssh
+    - ~/.aws
+```
+
+### 3. 網絡存取無限制
+
+OpenClaw 可以發送 HTTP 請求到任何地址，包括內部網絡。
+
+<Callout variant="warning">
+如果你嘅 OpenClaw 實例運行喺公司內網，攻擊者可以利用 SSRF 存取內部服務。
+</Callout>
+
+```yaml
+network:
+  allowed_domains:
+    - api.openai.com
+    - api.anthropic.com
+  block_internal: true
+```
+
+### 4. Prompt Injection 攻擊
+
+用戶輸入可能包含惡意指令，令 Agent 執行非預期操作。
+
+**防禦策略：**
+
+1. 設定嚴格嘅 System Prompt
+2. 啟用輸入過濾
+3. 限制 Agent 可用工具
+
+```yaml
+security:
+  prompt_injection:
+    enabled: true
+    mode: strict
+    blocked_patterns:
+      - "ignore previous instructions"
+      - "system prompt"
+```
+
+### 5. 日誌洩漏敏感資料
+
+Agent 嘅對話日誌可能包含用戶嘅敏感資訊。
+
+```yaml
+logging:
+  redact_patterns:
+    - "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
+    - "\\b\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}\\b"
+  retention_days: 30
+```
+
+## 完整安全設定步驟
+
+### 步驟 1：建立安全配置檔
+
+```bash
+mkdir -p ~/.openclaw
+touch ~/.openclaw/config.yaml
+chmod 600 ~/.openclaw/config.yaml
+```
+
+### 步驟 2：設定環境變數
+
+```bash
+# 使用 direnv 或者 .env 檔案管理
+cat > .env << 'EOF'
+OPENAI_API_KEY=your-key-here
+ANTHROPIC_API_KEY=your-key-here
+OPENCLAW_SECRET=your-random-secret
+EOF
+
+chmod 600 .env
+```
+
+### 步驟 3：配置權限
+
+```yaml
+# ~/.openclaw/config.yaml
+version: "1.0"
+
+filesystem:
+  allowed_paths:
+    - ./workspace
+  denied_paths:
+    - /etc
+    - ~/.ssh
+
+network:
+  allowed_domains:
+    - api.openai.com
+    - api.anthropic.com
+  block_internal: true
+
+security:
+  prompt_injection:
+    enabled: true
+    mode: strict
+  max_tokens_per_request: 4096
+  rate_limit:
+    requests_per_minute: 30
+
+logging:
+  level: info
+  redact_sensitive: true
+  retention_days: 30
+```
+
+### 步驟 4：驗證設定
+
+```bash
+openclaw config validate
+openclaw security audit
+```
+
+<Callout variant="tip">
+建議每次更新 OpenClaw 版本之後都重新跑一次 `openclaw security audit`，確保新版本冇引入新嘅安全問題。
+</Callout>
+
+## 常見問題 FAQ
+
+### 我用緊 Docker，仲需要做呢啲設定嗎？
+
+需要。Docker 只係提供容器級別嘅隔離，但 OpenClaw 內部嘅安全設定（API Key 管理、Prompt Injection 防禦）仲係需要手動配置。
+
+### 點樣知道我嘅設定有冇問題？
+
+運行 `openclaw security audit`，佢會自動掃描你嘅配置檔並且列出所有安全問題。
+
+### 更新 OpenClaw 之後設定會唔會被覆蓋？
+
+唔會。用戶配置檔（`~/.openclaw/config.yaml`）唔會被更新覆蓋。但建議更新後檢查一下有冇新嘅安全選項可以啟用。
+
+## 下一步
+
+- [Docker 部署指南](/deployment/docker-setup) — 用 Docker 安全地部署 OpenClaw
+- [第一個 MCP 插件](/mcp-dev/first-plugin) — 開發自定義工具擴展 Agent 功能
+- [安全部署服務](/services/secure-setup) — 唔想自己搞？我哋幫你由零設定到上線
