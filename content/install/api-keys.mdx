@@ -1,0 +1,319 @@
+---
+title: "OpenClaw API Key 申請與設定全攻略（2026 年 3 月版）"
+description: "OpenAI、Anthropic、DeepSeek、Google、OpenRouter — 各大 LLM Provider 嘅 API Key 申請步驟同 OpenClaw 設定方法"
+category: "install"
+slug: "api-keys"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "10 分鐘"
+seoKeywords:
+  - "openclaw api key"
+  - "openclaw api key 設定"
+  - "openclaw openai api"
+  - "openclaw anthropic api"
+  - "openclaw deepseek"
+schemaType: "HowTo"
+relatedArticles:
+  - "/install/macos"
+  - "/troubleshoot/token-optimization"
+  - "/compare/vs-chatgpt"
+ctaType: "setup"
+---
+
+## TL;DR
+
+唔知揀邊個 Provider？
+
+- **新手首選** — OpenAI Codex OAuth（免費額度，唔使信用卡，最易設定）
+- **慳錢首選** — DeepSeek 或 Ollama（本地免費）
+- **質素首選** — Claude Sonnet 4.6 或 GPT-5.4
+- **彈性首選** — OpenRouter（一個 Key 用晒所有 Provider）
+
+---
+
+## Provider 定價比較表
+
+| Provider | 註冊難度 | 需信用卡 | 免費額度 | 主力模型 Input 價格 | 適合人群 |
+|----------|----------|----------|----------|---------------------|----------|
+| OpenAI OAuth | ⭐ | 唔使 | 有 | 免費（OAuth 額度） | 新手首選 |
+| OpenAI API Key | ⭐⭐ | 要 | 冇 | $10/1M tokens（GPT-5.4） | 重度用戶 |
+| Anthropic | ⭐⭐ | 要 | 冇 | $3/1M tokens（Sonnet） | 求質量 |
+| DeepSeek | ⭐⭐ | 唔使 | 有少量 | $0.27/1M tokens（V3） | 慳錢 |
+| Google Gemini | ⭐⭐ | 唔使 | 有 | $1.25/1M tokens（2.5 Pro） | 試用 |
+| OpenRouter | ⭐⭐ | 要 | 冇 | 各 Provider 價格 + 少量加成 | 想靈活換模型 |
+| Ollama（本地） | ⭐⭐⭐ | 唔使 | 完全免費 | $0 | 追求私隱、有 Apple Silicon |
+
+---
+
+## OpenAI（最多人用）
+
+OpenAI 有兩種認證方式，新手強烈建議用 OAuth。
+
+### 方法一：Codex OAuth（推薦）
+
+唔使信用卡、有免費額度、設定最簡單。
+
+```bash
+# 方法一：跑 onboard 會自動引導
+openclaw onboard
+# 揀 OpenAI，會彈瀏覽器做 OAuth
+
+# 方法二：直接登入
+openclaw models auth login --provider openai-codex
+```
+
+瀏覽器彈出後，用你嘅 OpenAI 帳號登入，授權即完成。唔需要手動複製 Key。
+
+### 方法二：API Key
+
+需要綁信用卡，適合有重度用量、需要更高 rate limit 嘅用戶。
+
+1. 去 `platform.openai.com` → API Keys → **Create new secret key**
+2. 複製 Key（只顯示一次）
+3. 設定到 OpenClaw：
+
+```bash
+openclaw models auth setup-token --provider openai
+# 貼入你嘅 API Key
+```
+
+**可用模型：** `gpt-5.4`、`gpt-5.3-codex`、`gpt-5.2`、`gpt-4o-mini`
+
+<Callout variant="warning">
+**踩坑：** OAuth 同 API Key 係兩套獨立系統，唔好搞混。OAuth 用 `--provider openai-codex`，API Key 用 `--provider openai`。如果你兩個都設咗，OpenClaw 會用 config 裡面指定嘅那個。
+</Callout>
+
+---
+
+## Anthropic（要小心）
+
+Claude 系列模型質量高，但有重要警告要睇。
+
+**申請步驟：**
+
+1. 去 `console.anthropic.com` → API Keys → **Create Key**
+2. 需要綁信用卡
+3. 設定：
+
+```bash
+openclaw models auth setup-token --provider anthropic
+# 貼入你嘅 API Key（格式：sk-ant-...）
+```
+
+**可用模型：** `claude-opus-4-6`、`claude-sonnet-4-6`、`claude-haiku-4-5`
+
+<Callout variant="danger">
+**帳號封禁風險：** OpenClaw 嘅使用方式（自動執行指令、持續運行 Agent、大量 API 呼叫）有機會觸發 Anthropic 嘅 Terms of Service 審查。已有用戶報告帳號被 ban。
+
+如果你打算主力用 Anthropic API 跑 OpenClaw，強烈建議：
+- 用**獨立帳號**，唔好用你喺其他地方（例如 Claude.ai）用嘅同一個帳號
+- 設月度用量上限，避免異常大量消耗
+- 了解[安全設定](/security/essential-guide)，避免帳號行為異常
+</Callout>
+
+---
+
+## DeepSeek（最平）
+
+價格係最大賣點，適合高頻自動化任務。
+
+**申請步驟：**
+
+1. 去 `platform.deepseek.com` → API Keys → **Create API Key**
+2. 唔需要信用卡（有少量免費額度）
+3. 設定：
+
+```bash
+openclaw models auth setup-token --provider deepseek
+# 貼入你嘅 API Key
+```
+
+**可用模型：** `deepseek-v3`、`deepseek-r1`
+
+**優點：**
+- Input token 價格係 Claude Sonnet 嘅 1/10
+- Deepseek R1 有強推理能力
+- 適合高頻 Cron Job 任務
+
+**缺點：**
+- Instruction-following 能力弱過 Claude / GPT
+- 對複雜指令嘅遵從度較低
+- 安全性較弱，更容易被 prompt injection 攻擊
+
+<Callout variant="warning">
+**安全提醒：** DeepSeek 係中國公司，數據可能受中國法律監管。如果你嘅 Agent 會接觸敏感資料，建議用其他 Provider。另外，DeepSeek 模型對 prompt injection 嘅防護較弱，唔建議用嚟處理來自不受信任來源嘅內容（例如抓網頁數據再分析）。
+</Callout>
+
+---
+
+## Google Gemini
+
+有免費額度，適合想試用唔想立刻付費嘅用戶。
+
+**申請步驟：**
+
+1. 去 `aistudio.google.com` → **Get API Key**
+2. 唔需要信用卡（有免費 tier）
+3. 設定：
+
+```bash
+openclaw models auth setup-token --provider google
+# 貼入你嘅 API Key（格式：AIza...）
+```
+
+**可用模型：** `gemini-2.5-pro`、`gemini-2.5-flash`
+
+Gemini 2.5 Flash 係目前速度最快嘅模型之一，適合需要快速回應嘅 Agent 任務。免費 tier 對新手試玩足夠。
+
+---
+
+## OpenRouter（一個 Key 用多個模型）
+
+聚合平台，用一個帳號就可以存取所有主要 Provider 嘅模型。
+
+**申請步驟：**
+
+1. 去 `openrouter.ai` → **Keys** → Create Key
+2. 需要綁信用卡（充值後使用）
+3. 設定：
+
+```bash
+openclaw models auth setup-token --provider openrouter
+# 貼入你嘅 API Key（格式：sk-or-...）
+```
+
+設定完之後，你可以喺 OpenClaw 用任何 OpenRouter 支持嘅模型，例如：
+
+```bash
+# 設定用 Claude 模型（透過 OpenRouter）
+openclaw config set agents.main.model anthropic/claude-sonnet-4-6
+
+# 設定用 DeepSeek（透過 OpenRouter）
+openclaw config set agents.crawler.model deepseek/deepseek-v3
+```
+
+**優點：** 唔使每個 Provider 分別開帳號、一個 dashboard 睇晒所有用量、可以即時換模型
+
+**缺點：** 每次 API 呼叫有少量加成（約 0–5%）、多一層中間商、latency 稍高
+
+---
+
+## Ollama（本地模型 — 完全免費）
+
+唔想付任何 API 費用？跑本地模型係唯一方法。
+
+**安裝 Ollama：**
+
+```bash
+# 安裝 Ollama
+brew install ollama
+
+# 啟動 Ollama service
+ollama serve
+
+# 拉取模型（選一個）
+ollama pull llama3.2          # Meta Llama 3.2（輕量，適合測試）
+ollama pull mistral            # Mistral 7B
+ollama pull qwen2.5-coder     # 代碼專用模型
+```
+
+**設定 OpenClaw 用 Ollama：**
+
+```bash
+# 互動式設定
+openclaw configure --section model
+# 揀 Ollama，輸入 model 名稱
+
+# 或者直接設
+openclaw config set agents.main.model ollama/llama3.2
+openclaw config set model.ollama.base_url http://localhost:11434
+```
+
+**硬件要求：**
+
+| 模型大小 | 最低要求 | 推薦 |
+|----------|----------|------|
+| 7B 模型 | 8GB RAM | M2 Mac 16GB |
+| 13B 模型 | 16GB RAM | M2 Pro 16GB |
+| 70B 模型 | 64GB RAM | M3 Max 96GB |
+
+<Callout variant="tip">
+**Apple Silicon 用戶：** Ollama 喺 M 系列 Mac 跑得好流暢。M1/M2 16GB 跑 7B 模型完全夠用。如果你有 M3 Pro 或以上，13B 模型都可以考慮。
+</Callout>
+
+---
+
+## 設定完點驗證
+
+```bash
+# 睇已設定嘅 Provider 同模型
+openclaw models status
+
+# 預期輸出範例：
+# Provider: openai-codex  Model: gpt-5.4  Status: ✅ Connected
+# Provider: anthropic     Model: claude-sonnet-4-6  Status: ✅ Connected
+```
+
+或者直接喺 TUI 或 Telegram 打一句說話測試。TUI 底部會顯示當前用緊嘅模型，例如：
+
+```
+tokens 0/272k (0%)  think low  claude-sonnet-4-6
+```
+
+---
+
+## Primary + Fallback 設定
+
+可以設一個主要模型同後備模型，主要模型出問題或超出 budget 時自動切換：
+
+```yaml
+# ~/.openclaw/config.yaml
+agents:
+  main:
+    model: claude-sonnet-4-6        # 主要：質量好
+    fallback_model: claude-haiku-4-5 # 後備：便宜
+  coder:
+    model: gpt-5.4                   # 主要：代碼強
+    fallback_model: deepseek-v3      # 後備：平
+  crawler:
+    model: claude-haiku-4-5          # 抓數據唔需要貴
+```
+
+<Callout variant="warning">
+**Fallback 安全考慮：** 唔好將 Fallback 設為能力太弱或安全性低嘅模型。弱模型更容易被 prompt injection 攻擊——尤其係 Crawler Agent 會接觸不受信任嘅網頁內容。詳細睇[安全避坑指南](/security/essential-guide)。
+</Callout>
+
+關於如何合理配置各 Agent 嘅模型節省費用，睇[Token 慳錢攻略](/troubleshoot/token-optimization)。
+
+---
+
+## FAQ
+
+**Q：一定要畀錢先用到 OpenClaw？**
+
+唔使。有兩個免費方法：一係用 OpenAI Codex OAuth（有免費額度，唔使信用卡）；二係跑 Ollama 本地模型（完全免費，但需要 Apple Silicon 或 GPU）。OpenClaw 軟件本身係開源免費，費用只嚟自 LLM API 使用量。
+
+**Q：API Key 存喺邊？安唔安全？**
+
+API Key 存喺你本機嘅 `~/.openclaw/` 目錄入面（加密儲存）。喺正常情況下係安全嘅。主要風險係惡意 Skills——如果你裝咗惡意嘅社區 Skill，佢有機會讀取你嘅本地檔案，包括 API Key。所以裝 Skill 之前一定要做安全審查，詳細睇[安全避坑指南](/security/essential-guide)。
+
+**Q：可唔可以同時設定幾個 Provider？**
+
+可以。你可以為唔同 Agent 設唔同嘅 Provider 同模型，例如 Main Agent 用 Claude Sonnet、Crawler Agent 用 DeepSeek、Coder Agent 用 GPT-5.4。用 `openclaw config set agents.<agent-name>.model <model-id>` 逐個設定。
+
+**Q：點知我用咗幾多錢？**
+
+兩個地方睇：TUI 底部嘅實時 token 顯示（`tokens X/Y (Z%)`）可以見到當前 session 消耗；去各 Provider 嘅 dashboard（OpenAI Usage、Anthropic Console、DeepSeek Dashboard）可以睇到實際費用同歷史用量。建議每個 Provider 都設用量上限，詳細方法睇[Token 慳錢攻略](/troubleshoot/token-optimization)。
+
+**Q：OpenRouter 同直接用各 Provider 有乜實際分別？**
+
+功能上一樣，主要分別係：直連 Provider 冇加成、latency 低、Provider 直接支持；OpenRouter 方便統一管理、一個 dashboard 睇晒所有用量，但每次呼叫有少量加成（通常 0–5%），多一層中間商。如果你只用一兩個 Provider，直連更好；如果你經常換模型做測試，OpenRouter 更方便。
+
+---
+
+## 相關文章
+
+- [OpenClaw macOS 安裝教學](/install/macos) — 完整安裝流程，API Key 係其中一步
+- [Token 慳錢攻略](/troubleshoot/token-optimization) — 設定好 Key 之後，點樣控制費用
+- [OpenClaw vs ChatGPT](/compare/vs-chatgpt) — 唔確定值唔值得設 API？先睇呢篇
