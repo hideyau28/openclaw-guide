@@ -1,24 +1,230 @@
 ---
-title: "OpenClaw vs ChatGPT — 分別在邊？"
-description: "深度比較 OpenClaw 同 ChatGPT 嘅功能、費用、隱私同適用場景，幫你揀啱工具。"
+title: "OpenClaw vs ChatGPT — 分別在邊？你應該揀邊個？"
+description: "OpenClaw 同 ChatGPT 嘅核心分別：一個係 AI Agent 幫你做嘢，一個係 Chatbot 同你傾偈。完整比較 + 邊種人適合邊個"
 category: "compare"
 slug: "vs-chatgpt"
-date: "2026-03-14"
-lastVerified: "2026-03-14"
-openclawVersion: "v3.2.1"
-readingTime: "7 分鐘"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "8 分鐘"
 seoKeywords:
-  - "OpenClaw vs ChatGPT"
-  - "AI Agent 比較"
-  - "開源 AI 工具"
+  - "openclaw vs chatgpt"
+  - "openclaw 比較"
+  - "openclaw chatgpt 分別"
+  - "ai agent vs chatbot"
 schemaType: "Article"
 relatedArticles:
-  - "security/essential-guide"
-ctaType: "pdf"
+  - "/start/what-is-openclaw"
+  - "/security/essential-guide"
+  - "/install/macos"
+ctaType: "setup"
 ---
 
-<Callout variant="info">
-教學內容準備中，請稍後回來。
+## TL;DR
+
+**一句話講分別：ChatGPT 係同你傾偈嘅 Chatbot，OpenClaw 係幫你做嘢嘅 AI Agent。**
+
+| | ChatGPT | OpenClaw |
+|---|---|---|
+| **本質** | Chatbot | AI Agent |
+| **跑喺邊** | OpenAI 雲端 | 你自己部機 |
+| **能唔能做嘢** | 唔可以（只回答） | 可以（執行指令、操作系統） |
+| **數據去邊** | OpenAI server | 留喺本地 |
+| **主動性** | 被動（你問先答） | 主動（可定時自動執行） |
+| **門檻** | 零門檻 | 需要基本技術能力 |
+| **費用** | $20/月（Plus）或免費 | 開源免費 + LLM API 費用 |
+| **安全風險** | 低 | 較高（有完整系統權限） |
+
+佢哋根本唔係同一個 category，所以「邊個好啲」係個錯誤問題。正確問法係：**我嘅需求係傾偈，定係自動化做嘢？**
+
+---
+
+## 一、本質分別：Chatbot vs AI Agent
+
+呢個係最根本嘅分別，其他所有分別都係由此而來。
+
+**ChatGPT 係 Chatbot。**你打字，佢回覆。佢唔會真正「做」任何事——佢只係生成文字回應。就算 ChatGPT 話「我幫你改好咗個 code」，佢係喺對話框入面顯示新 code，唔係直接改你部機嘅檔案。
+
+**OpenClaw 係 AI Agent。**你指示佢，佢真係去做。佢可以：
+- 喺你部機讀寫檔案
+- 執行 shell 指令
+- 控制瀏覽器（自動填 form、截圖、抓數據）
+- 發 Telegram / WhatsApp 訊息
+- 控制智能家居
+- 定時跑任務（Cron）
+
+呢個分別決定咗一切。你唔係喺問 OpenClaw 問題——你係叫 OpenClaw 去做事。
+
+---
+
+## 二、運行環境：雲端 vs 本地
+
+**ChatGPT** 跑喺 OpenAI 嘅 server。你唔使安裝任何東西，打開瀏覽器就用到。代價係：所有運算都喺佢哋嘅系統發生，你對個環境冇控制權。
+
+**OpenClaw** 跑喺你自己部機（Mac、Windows、Linux 都支持）。你要自己安裝、自己設定、自己維護。代價係學習成本，好處係完全控制。
+
+<Callout variant="tip">
+想知道點樣喺 Mac 安裝 OpenClaw？睇[完整安裝教學](/install/macos)，包括每步截圖。
 </Callout>
 
-教學內容準備中，請稍後回來。
+---
+
+## 三、數據隱私：你嘅對話去咗邊？
+
+**ChatGPT：** 你嘅對話喺 OpenAI 嘅 server 上。OpenAI 嘅隱私政策話明會用對話數據改善模型（除非你喺設定入面關咗）。如果你貼入敏感資料——密碼、客戶資料、公司機密——就等於畀咗 OpenAI。
+
+**OpenClaw：** 所有數據留喺本地。OpenClaw 本身唔收集你嘅對話。你完全控制邊啲資料會發送去 LLM API（Claude、GPT 等）。唔過，你選擇用邊個 LLM model，就係接受嗰個 model 供應商嘅條款。
+
+<Callout variant="warning">
+**注意：** OpenClaw 本地跑不等於完全私隱。你嘅對話內容仍然會發送去你配置嘅 LLM provider（例如 Anthropic 或 OpenAI）。分別係你對數據流向有更多控制，而唔係完全離線。
+</Callout>
+
+---
+
+## 四、能力範圍：傾偈 vs 做嘢
+
+| 能力 | ChatGPT | OpenClaw |
+|---|---|---|
+| 文字對話、問答 | ✅ | ✅ |
+| 生成文案、代碼 | ✅ | ✅ |
+| 分析上傳文件 | ✅ | ✅ |
+| 讀寫本地檔案 | ❌ | ✅ |
+| 執行 shell 指令 | ❌ | ✅ |
+| 控制瀏覽器 | ❌ | ✅ |
+| 發 Telegram/WhatsApp 訊息 | ❌ | ✅ |
+| 定時自動執行任務 | ❌ | ✅ |
+| 整合 50+ 外部服務 | 有限 | ✅ |
+| 控制智能家居 | ❌ | ✅ |
+| 多個 Agent 並行跑 | ❌ | ✅ |
+
+ChatGPT 嘅能力範圍係「回答問題、生成內容」。OpenClaw 嘅能力範圍係「幫你做到任何可以用電腦做嘅事」。
+
+---
+
+## 五、持久記憶：記唔記得你係邊個
+
+**ChatGPT：** 有 Memory 功能，但係有限。佢記得嘅係你喺對話裡面明確告訴佢嘅事，而唔係完整嘅操作 context。
+
+**OpenClaw：** 有完整嘅 persistent memory 系統。跨 session 記住你嘅偏好、上次做到邊、你慣用嘅工作流程。你嘅 5 個 Agent 可以共享 context，互相知道各自做緊乜。
+
+---
+
+## 六、主動性：等你問 vs 主動行動
+
+呢個係 AI Agent 同 Chatbot 最明顯嘅行為分別。
+
+**ChatGPT：** 被動。你唔問，佢唔動。佢永遠係在等你。
+
+**OpenClaw：** 主動。你可以設定：
+- **Heartbeat**：每 X 分鐘自動執行某個任務
+- **Cron Job**：定時跑工作流程
+- **Event-driven**：某個條件觸發就自動行動
+- **主動通知**：Agent 發現重要事項，主動 Telegram 你
+
+例子：設定一個 Agent 每小時監控你嘅伺服器狀態，有問題就即刻 Telegram 你。呢個 ChatGPT 永遠做唔到。
+
+---
+
+## 七、安全風險：要認真對待
+
+呢個係最多人忽略嘅一點。
+
+**ChatGPT 嘅風險相對低。** 就算 ChatGPT 做咗蠢事，佢都只係喺對話框入面輸出文字，傷唔到你部機。
+
+**OpenClaw 嘅風險係真實嘅。** 因為 OpenClaw 有你部機嘅真實操作權限，所以：
+
+- **CVE-2026-25253（ClawJacked）：** 舊版 Gateway 暴露喺公網，惡意網站可接管你嘅 Agent
+- **惡意 Skills：** 從 ClawHub 安裝嘅 Skills 可以執行任意代碼
+- **Gateway Token 外洩：** Token 係你 Agent 系統嘅大門鎖匙
+
+<Callout variant="warning">
+**唔係嚇你，係提醒你：** OpenClaw 嘅強大能力同安全風險係同一枚硬幣嘅兩面。跑一個有完整系統權限嘅 AI，要認真做好安全設定。詳細睇[安全避坑指南](/security/essential-guide)。
+</Callout>
+
+---
+
+## 八、成本：點計先抵？
+
+**ChatGPT：**
+- 免費版：有限制，較慢
+- ChatGPT Plus：$20/月，無限 GPT-4o，有 Plugins
+
+**OpenClaw：**
+- 軟件本身：免費開源
+- LLM API 費用：視乎你用邊個 model 同用量
+  - Claude Haiku：約 $0.25 / 百萬 token（輸入），非常便宜
+  - Claude Sonnet：約 $3 / 百萬 token（輸入）
+  - GPT-4o：約 $2.50 / 百萬 token（輸入）
+  - 普通用量（每日數十個任務）：估計 $5–20/月
+  - 高頻自動化用量：$20–50/月
+
+**點算邊個抵？**
+
+如果你只係偶爾傾偈、寫文案 → ChatGPT 免費版已夠用，完全唔使裝 OpenClaw。
+
+如果你要大量自動化任務、多個 Agent 並行 → OpenClaw + 便宜 model（Haiku）可能比 ChatGPT Plus 更划算，而且功能強十倍。
+
+---
+
+## 九、適合人群：你係邊種？
+
+**選 ChatGPT 如果你：**
+- 只係想有個 AI 可以傾偈、問問題、寫嘢
+- 唔想裝任何軟件、零設定
+- 用電腦技術能力有限，唔想搞複雜設定
+- 主要需求係偶發性、唔需要自動化
+
+**選 OpenClaw 如果你：**
+- 想 AI 真正幫你「做嘢」，唔係只係回答
+- 有重複性任務想自動化（定時抓數據、自動回覆、監控）
+- 在乎數據隱私，唔想對話全部存喺雲端
+- 願意花幾個小時設定，換取長期嘅自動化效益
+- 有基本技術能力（識得用 Terminal、裝 npm package）
+
+**兩個都用如果你：**
+- 想要 ChatGPT 嘅易用性 + OpenClaw 嘅執行力
+- 可以喺 OpenClaw 入面配置 OpenAI API，用 GPT 做大腦、OpenClaw 做手腳
+
+---
+
+## 我自己嘅真實使用分享
+
+我兩個都用，但用途完全唔同。
+
+**ChatGPT：** 日常問答、即興寫文案、快速分析文件。需要一個 AI 幫我 think through 一個問題嘅時候，打開 ChatGPT 最快。
+
+**OpenClaw：** 所有需要「真係做」嘅事。我跑住 5 個 Agent（main、crawler、webtest、coder、social），Telegram 做主要 interface。典型用途：
+- Coder Agent 定時做代碼 review
+- Crawler Agent 自動抓我追蹤嘅網站更新
+- Social Agent 監控提到我嘅內容
+- Main Agent 喺 Telegram 回答我嘅臨時指示
+
+呢兩個工具唔係互相競爭，係互補。如果你要我選一個 — 唔好問我，問你自己：你係想傾偈，定想做嘢？
+
+---
+
+## FAQ
+
+**Q：OpenClaw 可唔可以用 ChatGPT / GPT-4o 嘅 model？**
+
+可以。OpenClaw 本身唔鎖定某個 LLM，你可以配置用 OpenAI API（即係 GPT-4o、GPT-4o mini 等）。咁你就係用 OpenClaw 嘅 Agent 框架 + OpenAI 嘅 AI 大腦。設定方法係喺 OpenClaw config 入面填入你嘅 OpenAI API key，然後指定 model。
+
+**Q：OpenClaw 係咪完全免費？**
+
+OpenClaw 軟件本身係開源免費。但係你要付 LLM API 嘅費用——即係你叫 OpenClaw 去問 Claude 或 GPT 問題時，係有 API 費用嘅。普通用量大概 $5–20/月，高頻自動化可能更多。冇 LLM API 費用嘅用法理論上係用本地 model（例如 Ollama），但呢個係另一個話題。
+
+**Q：我完全唔識 code，用唔用到 OpenClaw？**
+
+可以用，但有門檻。安裝需要用 Terminal、npm/pnpm，設定需要改 config 檔案。我估計完全唔識 Terminal 嘅人需要花 2–4 小時跟著教學裝好。如果你願意花呢個時間，睇[macOS 安裝教學](/install/macos)，有截圖逐步指引。如果唔想搞，ChatGPT 係更好嘅選擇。
+
+**Q：ChatGPT Plus $20/月 同 OpenClaw 邊個更抵？**
+
+取決於你嘅用途。如果只係傾偈，ChatGPT Plus 或者免費版已夠，OpenClaw 係 overkill。如果你要大量自動化任務，OpenClaw + 便宜 model（Claude Haiku）可以做更多嘢，費用相近甚至更低。兩者唔係同一個產品類別，直接比較費用意義唔大——先想清楚你要 Chatbot 還是 Agent。
+
+---
+
+## 相關文章
+
+- [什麼是 OpenClaw？完整介紹](/start/what-is-openclaw) — 想更深了解 OpenClaw 嘅概念
+- [OpenClaw macOS 安裝教學](/install/macos) — 決定試試？由呢度開始
+- [OpenClaw 安全避坑指南](/security/essential-guide) — 裝之前一定要睇嘅安全知識
