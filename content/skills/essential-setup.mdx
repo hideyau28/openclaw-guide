@@ -1,24 +1,263 @@
 ---
-title: "OpenClaw 新手必裝 Skills 推薦"
-description: "精選 10 個 OpenClaw 新手必裝嘅安全 Skills，附安裝方法同安全評分。"
+title: "OpenClaw 新手必裝 Skills 推薦 + 安全審查指南（2026 年 3 月版）"
+description: "OpenClaw 1800+ Skills 入面邊啲值得裝？邊啲有風險？新手必睇嘅 Skills 推薦清單同安全檢查方法"
 category: "skills"
 slug: "essential-setup"
-date: "2026-03-14"
-lastVerified: "2026-03-14"
-openclawVersion: "v3.2.1"
-readingTime: "5 分鐘"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "10 分鐘"
 seoKeywords:
-  - "OpenClaw Skills"
-  - "OpenClaw 插件"
-  - "AI Agent 工具推薦"
+  - "openclaw skills 推薦"
+  - "openclaw skills"
+  - "openclaw 必裝"
+  - "openclaw skills 安全"
+  - "clawhub skills"
 schemaType: "Article"
 relatedArticles:
-  - "security/essential-guide"
-ctaType: "pdf"
+  - "/security/essential-guide"
+  - "/install/macos"
+  - "/troubleshoot/gateway"
+ctaType: "setup"
 ---
 
-<Callout variant="info">
-教學內容準備中，請稍後回來。
+## TL;DR
+
+ClawHub 有 1800+ Skills，其中約 8% 被 Koi Security 標記為惡意。**1800 個裡面，呢 20 個最值得裝——但裝之前一定要做安全檢查。**
+
+---
+
+## 先搞清楚：Tools vs Skills 嘅分別
+
+好多新手搞混呢兩個概念。弄清楚先，後面先睇得明。
+
+**Tools = 權限開關**
+
+決定 OpenClaw「可唔可以」做某件事。例如：
+- `read` — 可唔可以讀你嘅檔案
+- `write` — 可唔可以寫入檔案
+- `exec` — 可唔可以執行 shell 指令
+- `browser` — 可唔可以控制瀏覽器
+
+**Skills = 教學手冊**
+
+教 Agent「點樣」做某件事。例如：
+- `obsidian` Skill 教 Agent 怎樣讀寫 Obsidian vault
+- `github` Skill 教 Agent 怎樣操作 GitHub PR 同 Issues
+- `telegram` Skill 教 Agent 怎樣收發 Telegram 訊息
+
+**三個條件必須同時滿足，Skill 先能正常運作：**
+
+```
+Tools 權限開咗（exec / read / write）
+         +
+    Skill 裝咗（教 Agent 點用）
+         +
+  外部工具已安裝（例如 Obsidian app）
+         ↓
+      Skill 正常運作
+```
+
+**常見誤解：**
+- 裝咗 `obsidian` Skill 但冇開 `write` Tool → Agent 識講點做，但實際做唔到
+- 開咗 `exec` Tool 但冇裝任何 Skill → Agent 有權限，但唔知做乜
+- 裝 Skill 唔會自動開 Tool 權限（這是安全設計）
+
+---
+
+## 20 個推薦 Skills（按分類）
+
+### 第一類：生產力（日常最有用）
+
+| Skill | 來源 | 功能 |
+|-------|------|------|
+| `memory` | 🔵 內置 | 跨 session 記住偏好，越用越聰明 |
+| `obsidian` | 🟢 官方 | 整合 Obsidian 筆記，AI 管理知識庫 |
+| `apple-notes` | 🟢 官方 | 讀寫 Apple Notes |
+| `apple-reminders` | 🟢 官方 | 管理提醒事項 |
+| `notion` | 🟡 社區 | Notion 整合（用前做安全檢查） |
+
+**標籤說明：** 🔵 內置（開箱即用）｜🟢 官方審核｜🟡 社區（需審查）
+
+`memory` 係必裝。OpenClaw 預設每個 session 都係空白嘅，裝咗 `memory` 之後，Agent 會記住你嘅偏好、工作方式、常用設定，越用越順手。
+
+### 第二類：通訊（OpenClaw 嘅殺手級應用）
+
+| Skill | 來源 | 功能 |
+|-------|------|------|
+| `telegram` | 🔵 內置 | Telegram Bot 收發訊息 |
+| `whatsapp` | 🟡 社區 | WhatsApp 整合（用 Baileys） |
+| `discord` | 🟡 社區 | Discord Bot |
+| `slack` | 🟡 社區 | Slack 整合 |
+| `gmail` | 🟡 社區 | Gmail 收發（需 OAuth） |
+
+`telegram` 係最多人用嘅 channel。裝好之後可以直接喺 Telegram 同你嘅 Agent 對話、下指令、收通知。詳細設定睇[macOS 安裝教學](/install/macos)。
+
+<Callout variant="warning">
+**`whatsapp` 特別注意：** 用 Baileys 庫（非官方 API），WhatsApp 有機會封帳號。建議用次要帳號測試，唔好用主號。
 </Callout>
 
-教學內容準備中，請稍後回來。
+### 第三類：開發者工具
+
+| Skill | 來源 | 功能 |
+|-------|------|------|
+| `github` | 🟢 官方 | PR review、Issue 管理、repo 操作 |
+| `git` | 🔵 內置 | 本地 git 操作 |
+| `docker` | 🟢 官方 | Container 管理 |
+
+`github` 係開發者最值得裝嘅 Skill。設定好之後，可以叫 Agent 幫你 review PR、整理 Issue、自動生成 commit message。
+
+### 第四類：自動化
+
+| Skill | 來源 | 功能 |
+|-------|------|------|
+| `cron` | 🔵 內置 | 定時任務排程 |
+| `webhook` | 🔵 內置 | 接收外部觸發 |
+| `browser` | 🔵 內置 | 網頁自動化、填 form、抓資料 |
+
+呢三個加埋係 OpenClaw 自動化嘅核心。`cron` 定時執行、`webhook` 接受外部觸發、`browser` 實際操作網頁。三個都係內置，唔使安裝，直接可用。
+
+### 第五類：資訊
+
+| Skill | 來源 | 功能 |
+|-------|------|------|
+| `web-search` | 🟢 官方 | 網上搜尋（需要 Brave/Google API） |
+| `hacker-news` | 🟡 社區 | 追蹤 HN 熱門 |
+| `rss` | 🟡 社區 | RSS feed 監控 |
+
+### 第六類：智能家居 / IoT
+
+| Skill | 來源 | 功能 |
+|-------|------|------|
+| `home-assistant` | 🟡 社區 | 控制智能家居 |
+
+<Callout variant="tip">
+**我嘅實際設定：** Mac Mini 有 37 個 eligible Skills，16 個因缺少 requirements 暫時未用。日常最常用係 `memory`、`telegram`、`cron`、`browser`、`github`。
+</Callout>
+
+---
+
+## 安裝指令
+
+```bash
+# 安裝單個 Skill
+openclaw skill install memory
+openclaw skill install telegram
+openclaw skill install github
+
+# 睇已安裝嘅 Skills
+openclaw skill list
+
+# 搜尋 ClawHub
+openclaw skill search obsidian
+
+# 睇 Skill 詳情（安裝前先做呢步）
+openclaw skill inspect <skill-id>
+```
+
+---
+
+## 安全審查三步檢查法
+
+ClawHub 有約 8% 嘅惡意 Skills（820+ 個，來源：Koi Security 報告）。**裝任何社區 Skill 之前，跟呢三步做。**
+
+### 第一步：睇 Security Scan 結果
+
+喺 ClawHub 頁面搵 Security Scan 一欄：
+
+![ClawHub Skill inspect 頁面，顯示 Security Scan 結果](/images/articles/essential-guide/clawHub-skill-inspect.webp)
+
+- **Benign + HIGH CONFIDENCE** = 相對安全，可以安裝
+- **Benign + LOW CONFIDENCE** = 小心，建議睇源碼
+- **冇 scan 結果** = 唔好裝，或者自己審查源碼先
+
+### 第二步：檢查 Permission 要求
+
+```bash
+# 睇呢個 Skill 要求哪些權限
+openclaw skill inspect <skill-id>
+```
+
+問自己：**呢個 Skill 嘅功能同佢要求嘅權限係咪合理？**
+
+紅旗範例：
+- 一個「天氣查詢」Skill 要求讀 `~/.ssh` 目錄 → 明顯可疑
+- 一個「筆記管理」Skill 要求 `exec` 執行任意指令 → 不合理
+- 一個「RSS 訂閱」Skill 要求網絡訪問 `*.analytics.io` → 可能係追蹤
+
+### 第三步：檢查作者信譽
+
+喺 ClawHub 睇作者頁面：
+
+| 信號 | 說明 |
+|------|------|
+| 多個 Skills + 高 star + 有評論 | 較可信 |
+| 只有一個 Skill + 零評價 + 下載量高 | 可疑 |
+| 最近才創建帳號 + 只有一個 Skill | 可疑 |
+| 源碼係 obfuscated（混淆） | 紅旗，唔好裝 |
+
+---
+
+## 安全設定（推薦）
+
+```bash
+# 只允許安裝官方認證嘅 Skills（最保守）
+openclaw config set skills.verified_only true
+
+# 關閉自動更新，改為手動審查
+openclaw config set skills.auto_update false
+
+# 確認設定
+openclaw config get skills
+```
+
+<Callout variant="warning">
+**自動更新有風險：** 一個原本安全嘅 Skill，作者可以喺更新版本加入惡意代碼。建議關閉自動更新，手動審查每次更新內容先安裝。詳細風險睇[安全避坑指南](/security/essential-guide)。
+</Callout>
+
+---
+
+## FAQ
+
+**Q：裝 Skill 會唔會自動開相應嘅 Tool 權限？**
+
+唔會。Skills 同 Tools 係分開管理嘅。裝 `obsidian` Skill 唔會自動開 `write` Tool。呢個係安全設計——你需要明確決定畀哪些權限 Agent，唔係裝個 Skill 就自動獲得所有所需權限。如果 Skill 需要某個 Tool 但你冇開，Agent 會話佢你需要先開對應權限。
+
+**Q：可唔可以自己寫 Skill？**
+
+可以。Skill 本質上係一個 Markdown 格式嘅教學文件，教 Agent 點樣用某個工具或服務。你可以寫自己公司嘅內部工具 Skill、自己嘅工作流程 Skill，甚至上載去 ClawHub 分享。自己寫嘅 Skill 只存係本地，唔需要安裝，直接放喺 `~/.openclaw/skills/` 目錄即可。
+
+**Q：裝咗幾多 Skills 先算「太多」？**
+
+質比量重要。我建議裝少少但用緊嘅，唔好見到有趣就裝。每個 Skill 都可能帶嚟安全風險（尤其是社區 Skill），而且太多 Skill 會增加 context window 佔用，影響 Agent 判斷。我自己只裝我實際每星期都用到嘅 Skills，目前係 8 個左右。
+
+**Q：ClawHub 上邊啲 Skill 千祈唔好裝？**
+
+- 冇 Security Scan 結果嘅社區 Skill（尤其係下載量高但冇評論）
+- 要求跟功能唔相符嘅過份權限嘅 Skill
+- 源碼係 obfuscated（混淆過）嘅 Skill
+- 只有一個 Skill 嘅新帳號作者發布嘅 Skill
+- 要求讀取 `~/.ssh`、`~/.aws`、`~/Library/Keychains` 等敏感目錄嘅 Skill
+
+**Q：點樣移除已裝嘅 Skill？**
+
+```bash
+# 移除單個 Skill
+openclaw skill uninstall <skill-id>
+
+# 例如
+openclaw skill uninstall notion
+
+# 確認已移除
+openclaw skill list
+```
+
+移除 Skill 唔會改變你嘅 Tool 權限設定，只係移除那份「教學手冊」。
+
+---
+
+## 相關文章
+
+- [OpenClaw 安全避坑指南](/security/essential-guide) — ClawJacked 漏洞同惡意 Skills 完整說明
+- [OpenClaw macOS 安裝教學](/install/macos) — 包含 Telegram Skill 設定步驟
+- [Gateway 排錯指南](/troubleshoot/gateway) — Skill 用唔到？先確認 Gateway 正常
