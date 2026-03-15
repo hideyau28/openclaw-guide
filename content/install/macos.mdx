@@ -1,24 +1,335 @@
 ---
-title: "OpenClaw macOS 安裝 + 安全設定教學"
-description: "手把手教你喺 macOS 上安裝 OpenClaw，包括依賴安裝、安全設定同常見問題。"
+title: "OpenClaw macOS 安裝 + 安全設定完整教學（2026 年 3 月實測版）"
+description: "由零開始喺 macOS 安裝 OpenClaw，包括 Telegram 連接同安全設定 — 每步有截圖嘅繁中教學"
 category: "install"
 slug: "macos"
-date: "2026-03-14"
-lastVerified: "2026-03-14"
-openclawVersion: "v3.2.1"
-readingTime: "8 分鐘"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.13"
+readingTime: "12 分鐘"
 seoKeywords:
-  - "OpenClaw macOS 安裝"
-  - "OpenClaw 教學"
-  - "AI Agent 安裝"
+  - "openclaw 安裝 mac"
+  - "openclaw macos"
+  - "openclaw 安裝教學"
+  - "openclaw telegram 設定"
 schemaType: "HowTo"
 relatedArticles:
-  - "security/essential-guide"
-ctaType: "pdf"
+  - "/security/essential-guide"
+  - "/troubleshoot/gateway"
+  - "/skills/essential-setup"
+ctaType: "setup"
 ---
 
-<Callout variant="info">
-教學內容準備中，請稍後回來。
+## TL;DR
+
+| 項目 | 詳情 |
+|------|------|
+| **需要乜** | Node.js v22+、npm、Telegram 帳號、OpenAI 帳號（Codex OAuth） |
+| **需要幾耐** | 約 20–30 分鐘（第一次裝） |
+| **結果** | OpenClaw TUI 啟動，Telegram Bot 可對話，Gateway 安全綁定 localhost |
+
+---
+
+## 前置條件
+
+開始之前，確認你有以下東西：
+
+- **Node.js v22 或以上** — 跑 `node -v` 確認
+- **npm v10 或以上** — 跑 `npm -v` 確認
+- **Telegram 帳號** — 用嚟設定 Bot channel
+- **OpenAI 帳號** — 用 Codex OAuth 登入（唔需要手動填 API key）
+
+<Callout variant="tip">
+唔確定自己嘅 Node.js 版本？跑 `node -v`。如果低於 v22，去 [nodejs.org](https://nodejs.org) 下載最新 LTS 版本。
 </Callout>
 
-教學內容準備中，請稍後回來。
+---
+
+## 完整安裝步驟（13 步）
+
+### 第 1 步：卸載舊版 clawdbot
+
+如果你之前裝過舊版（叫做 `clawdbot`），先卸載：
+
+```bash
+npm uninstall -g clawdbot
+```
+
+確認已卸載：
+
+```bash
+which clawdbot   # 應該返回「not found」
+```
+
+<Callout variant="tip">
+新版已改名為 `openclaw`。兩個係唔同嘅 package，要分開處理。如果你係全新安裝，跳過呢步。
+</Callout>
+
+---
+
+### 第 2 步：安裝 OpenClaw
+
+```bash
+npm install -g openclaw@latest
+```
+
+安裝過程中可能見到 deprecation warning，例如：
+
+```
+npm warn deprecated node-domexception@1.0.0: ...
+npm warn deprecated glob@7.2.3: ...
+```
+
+**呢啲 warning 可以忽略**，唔影響功能。安裝完成後確認版本：
+
+```bash
+openclaw --version
+# 應顯示 2026.3.13 或以上
+```
+
+---
+
+### 第 3 步：開始 Onboarding
+
+```bash
+openclaw onboard
+```
+
+第一個畫面係**安全警告頁面**：
+
+![OpenClaw Onboarding 安全警告頁面](/images/articles/macos/01-security-warning.png)
+
+<Callout variant="warning">
+**唔好跳過呢個頁面。** 呢頁列明咗 OpenClaw 預設係 personal assistant mode，唔適合喺公開伺服器部署。大部分人會直接按 Enter 略過，但建議你先睇清楚。
+</Callout>
+
+---
+
+### 第 4 步：選擇 QuickStart
+
+睇完安全警告之後，選擇 **QuickStart**：
+
+![QuickStart 選擇畫面](/images/articles/macos/02-quickstart.png)
+
+QuickStart 會幫你自動設定以下安全預設值：
+- Gateway bind `127.0.0.1`（loopback，唔對外）
+- Token auth 模式
+
+---
+
+### 第 5 步：處理現有 Config（如有）
+
+如果你之前裝過任何版本（包括 `clawdbot`），系統可能偵測到舊 config：
+
+![Existing config detected 畫面](/images/articles/macos/03-existing-config.png)
+
+選擇 **Full Reset**：
+
+![Full Reset 選擇畫面](/images/articles/macos/04-full-reset.png)
+
+<Callout variant="warning">
+Full Reset 會清除舊嘅設定同 token。如果你有重要嘅 custom config，先備份 `~/.openclaw/config.yaml`。
+</Callout>
+
+---
+
+### 第 6 步：確認 Gateway 預設值，選擇 Model Provider
+
+QuickStart 顯示 Gateway 預設值，同埋 Model provider 列表：
+
+![Gateway 預設值同 Model provider 列表](/images/articles/macos/05-quickstart-defaults.png)
+
+選擇 **OpenAI（Codex OAuth）**。
+
+<Callout variant="warning">
+**點解唔揀 Anthropic？** OpenClaw 嘅使用方式（長時間自動化、高頻 API 呼叫）容易觸發 Anthropic ToS 中關於自動化濫用嘅條款，有機會導致帳號被封。詳情可參考 [安全設定指南](/security/essential-guide)。建議用 OpenAI Codex OAuth 或其他支援嘅 provider。
+</Callout>
+
+---
+
+### 第 7 步：選擇 Model
+
+喺 OpenAI Codex OAuth 下，選擇 **openai-codex/gpt-5.4**：
+
+![GPT-5.4 選擇畫面](/images/articles/macos/06-model-gpt54.png)
+
+GPT-5.4 支援 266k context window 同 reasoning 模式，係目前 OpenClaw 最推薦嘅 default model。
+
+---
+
+### 第 8 步：選擇 Channel — Telegram
+
+Channel 列表中，選擇 **Telegram Bot API**：
+
+![Channel 列表](/images/articles/macos/07-channel-select.png)
+
+<Callout variant="tip">
+Telegram Bot API 係官方標明 **recommended + newcomer-friendly** 嘅 channel。設定最簡單，適合第一次裝。
+</Callout>
+
+---
+
+### 第 9 步：喺 Telegram 建立 Bot，取得 Token
+
+1. 喺 Telegram 搵 **@BotFather**：
+
+   ![BotFather 搜尋（手機）](/images/articles/macos/09-botfather-search.png)
+
+2. 輸入 `/newbot`，跟住指示畀你嘅 bot 起一個 **display name** 同 **username**（username 必須以 `bot` 結尾）：
+
+   ![BotFather /newbot 流程（手機）](/images/articles/macos/10-botfather-newbot.png)
+
+3. BotFather 會畀你一個 token，格式係：
+   ```
+   123456789:ABCdefGHIjklMNOpqrSTUvwxYZ
+   ```
+
+<Callout variant="warning">
+**Copy token 嘅時候唔好多空格。** Token 前後如果有多咗空白字符，登入時會報錯，而且錯誤訊息唔明顯。建議 copy 完之後即刻 paste 到 terminal 睇一下有冇多嘢。
+</Callout>
+
+---
+
+### 第 10 步：貼入 Telegram Bot Token
+
+返回 OpenClaw onboarding，選擇 **Enter Telegram bot token**，貼入你嘅 token：
+
+![Telegram token 設定畫面](/images/articles/macos/08-telegram-token.png)
+
+---
+
+### 第 11 步：跳過 Web Search 同 Skills
+
+**Web Search** 畫面選擇 **Skip for now**：
+
+![Web search skip 畫面](/images/articles/macos/11-web-search-skip.png)
+
+**Skills** 畫面選擇 **No**：
+
+![Skills status 畫面](/images/articles/macos/12-skills-status.png)
+
+呢兩項可以之後再設定。Skills 嘅安裝可以參考 [Skills 安全安裝指南](/skills/essential-setup)。
+
+---
+
+### 第 12 步：跳過 Hooks，選擇 Hatch in TUI
+
+**Hooks** 畫面選擇 **Skip for now**：
+
+![Hooks skip 畫面](/images/articles/macos/13-hooks-skip.png)
+
+<Callout variant="warning">
+**Hooks 選單操作方式：** 用**上下鍵**移動，**空白鍵**選擇／取消，**Enter** 確認。好多新手以為撳 Enter 就即刻選中，但其實係要先用空白鍵選擇，再用 Enter 確認。如果直接撳 Enter，會跳過冇選任何項目。
+</Callout>
+
+之後睇到 Token info 同 Hatch 選項，選擇 **Hatch in TUI**：
+
+![Token info + Hatch 選擇畫面](/images/articles/macos/14-hatch-tui.png)
+
+---
+
+### 第 13 步：確認 Gateway 啟動，完成 Telegram Pairing
+
+TUI 啟動成功，Gateway 顯示 `ws://127.0.0.1:18789`：
+
+![TUI 啟動成功](/images/articles/macos/15-tui-running.png)
+
+**最後一步：Telegram Pairing**
+
+1. 去 Telegram 對你嘅 bot 輸入 `/start`，bot 會回覆一個 pairing code
+2. **另開一個 terminal 視窗**（唔好喺 TUI 入面打），執行：
+
+   ```bash
+   openclaw pairing approve telegram <你的CODE>
+   ```
+
+   ![Terminal pairing approve 截圖](/images/articles/macos/16-pairing-approve.png)
+
+<Callout variant="warning">
+**唔好喺 TUI 入面打 approve 指令。** TUI 係 chat 介面，你輸入嘅嘢會當成對話發出去。要另開一個獨立嘅 terminal 視窗先跑 `openclaw pairing approve` 指令。
+</Callout>
+
+3. Approve 成功後，喺 Telegram 輸入任何說話，bot 應有回覆：
+
+   ![Telegram 成功對話（手機）](/images/articles/macos/17-telegram-success.png)
+
+**安裝完成！**
+
+---
+
+## 裝完即做：安全確認
+
+安裝完成後，建議立刻跑以下指令確認安全狀態：
+
+```bash
+# 確認 Gateway 綁定 localhost，唔對外
+openclaw gateway status
+# 應見到 bind: 127.0.0.1:18789
+
+# 執行安全掃描
+openclaw security audit
+# 目標：0 critical, 0 warn
+
+# 全面健康檢查
+openclaw doctor
+```
+
+如果 `security audit` 有任何 critical 項目，先跟 [OpenClaw 安全避坑指南](/security/essential-guide) 逐一修復，再正式使用。
+
+---
+
+## FAQ
+
+### 點解唔建議用 Anthropic 做 model provider？
+
+OpenClaw 嘅使用模式（長時間後台運行、高頻自動化呼叫、多 Agent 並發）容易觸發 Anthropic ToS 中關於自動化濫用嘅條款。有真實用戶因此被封帳號。OpenAI Codex OAuth 係目前官方推薦嘅 provider，對自動化場景嘅限制相對寬鬆。
+
+### 裝完點確認安全？
+
+跑以下三個指令：
+
+```bash
+openclaw gateway status      # 確認 127.0.0.1 唔係 0.0.0.0
+openclaw security audit      # 目標 0 critical
+curl http://localhost:18789/health   # 從本機確認可以連
+```
+
+如果想進一步驗證唔對外暴露，可以用手機 4G（唔喺同一 WiFi）嘗試連接你嘅公網 IP port 18789——應該係 connection refused 或 timeout。詳細安全設定可以睇 [安全避坑指南](/security/essential-guide)。
+
+### 舊版 clawdbot 點遷移？
+
+1. 備份舊 config：`cp ~/.clawdbot/config.yaml ~/clawdbot-backup.yaml`
+2. 卸載：`npm uninstall -g clawdbot`
+3. 安裝新版：`npm install -g openclaw@latest`
+4. Onboarding 時選 **Full Reset**（唔好 import 舊 config，格式唔同）
+5. 重新設定 channel 同 model provider
+
+舊版 clawdbot 嘅 config 格式同新版 OpenClaw 唔兼容，唔建議直接 migrate。
+
+### 需要幾多錢？
+
+OpenClaw 本身係免費嘅開源工具。費用來自你選擇嘅 model provider：
+
+- **OpenAI Codex OAuth**：按 token 計費，一般個人使用一個月大約 USD $5–20
+- **GPT-5.4**：每 1M input token 約 USD $2.50，output 約 USD $10
+
+如果只係輕度個人使用，費用唔會很高。可以喺 OpenAI Dashboard 設定 usage limit 做預算控制。
+
+### Windows 可唔可以用？
+
+可以，但本文只實測 macOS。Windows 主要嘅分別：
+
+- 用 PowerShell 或 Windows Terminal 代替 Terminal
+- 路徑用反斜線 `\` 或加引號
+- Config 檔案位置係 `%APPDATA%\openclaw\` 而唔係 `~/.openclaw/`
+- `openclaw pairing approve` 指令係一樣嘅
+
+如果遇到 Windows 特有嘅問題，可以睇 [Gateway 排錯指南](/troubleshoot/gateway)。
+
+---
+
+## 下一步
+
+- [OpenClaw 安全避坑指南](/security/essential-guide) — 5 大安全風險同完整修復步驟，裝完必睇
+- [Gateway 排錯中心](/troubleshoot/gateway) — 連線失敗、auth 錯誤、TUI 唔啟動嘅解決方法
+- [Skills 安全安裝指南](/skills/essential-setup) — 點樣安全地擴展你嘅 Agent 功能
