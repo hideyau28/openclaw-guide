@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Check } from "lucide-react";
 import { SITE_NAME } from "@/lib/constants";
 import { generateServiceSchema } from "@/lib/schema";
@@ -55,9 +54,7 @@ export default function SecureSetupPage() {
       />
       <div className="mx-auto max-w-4xl px-4 py-12">
         <div className="mb-12 text-center">
-          <h1 className="mb-4 text-3xl font-bold md:text-4xl">
-            安全部署服務
-          </h1>
+          <h1 className="mb-4 text-3xl font-bold md:text-4xl">安全部署服務</h1>
           <p className="mx-auto max-w-xl text-lg text-gray-600">
             唔想自己搞？我哋幫你由零設定 OpenClaw 到安全上線。
           </p>
@@ -89,16 +86,18 @@ export default function SecureSetupPage() {
                   </li>
                 ))}
               </ul>
-              <Link
-                href="#consultation"
+              <a
+                href="https://wa.me/85254323686?text=你好，我想了解 OpenClaw 安全部署服務"
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`block rounded-lg py-2.5 text-center text-sm font-medium ${
                   tier.highlighted
                     ? "bg-blue-600 text-white hover:bg-blue-700"
                     : "border border-gray-300 hover:bg-gray-50"
                 }`}
               >
-                聯絡我哋
-              </Link>
+                WhatsApp 聯絡
+              </a>
             </div>
           ))}
         </div>
@@ -109,12 +108,22 @@ export default function SecureSetupPage() {
           <p className="mb-6 text-gray-600">
             唔確定邊個方案適合你？預約 15 分鐘免費諮詢，我哋幫你分析。
           </p>
-          <a
-            href="mailto:hello@openclaw-guide.com"
-            className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
-          >
-            發送 Email 預約
-          </a>
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <a
+              href="https://wa.me/85254323686?text=你好，我想了解 OpenClaw 安全部署服務"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded-lg bg-green-600 px-6 py-3 font-medium text-white hover:bg-green-700"
+            >
+              WhatsApp 聯絡
+            </a>
+            <a
+              href="mailto:yau@flowstudiohk.com?subject=OpenClaw 安全部署服務查詢"
+              className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
+            >
+              Email 預約
+            </a>
+          </div>
         </section>
       </div>
     </>

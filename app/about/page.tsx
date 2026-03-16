@@ -36,10 +36,23 @@ export default function AboutPage() {
         </ul>
 
         <h2>聯絡我哋</h2>
-        <p>
-          有任何問題或合作查詢，歡迎 Email 我哋：
-          <a href="mailto:hello@openclaw-guide.com">hello@openclaw-guide.com</a>
-        </p>
+        <p>有任何問題或合作查詢，歡迎透過以下方式聯絡：</p>
+        <ul>
+          <li>
+            WhatsApp：
+            <a
+              href="https://wa.me/85254323686"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              +852 5432 3686
+            </a>
+          </li>
+          <li>
+            Email：
+            <a href="mailto:yau@flowstudiohk.com">yau@flowstudiohk.com</a>
+          </li>
+        </ul>
       </div>
 
       <div className="mt-8">
