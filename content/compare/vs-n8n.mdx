@@ -1,174 +1,233 @@
 ---
-title: "OpenClaw vs n8n vs Make — 自動化工具點揀？"
-description: "三款自動化工具各有所長。OpenClaw 用 AI 做決策，n8n 用 workflow，Make 用 visual builder。邊個適合你？"
+title: "OpenClaw vs n8n vs Zapier — 自動化工具點揀？（2026 完整比較）"
+description: "OpenClaw 嘅 AI 自主性 vs n8n 嘅節點式流程 vs Zapier 嘅零代碼 — 邊個適合你嘅自動化需求"
 category: "compare"
 slug: "vs-n8n"
-date: "2026-03-15"
-lastVerified: "2026-03-15"
-openclawVersion: "2026.3.11"
-readingTime: "8 分鐘"
+date: "2026-03-16"
+lastVerified: "2026-03-16"
+openclawVersion: "2026.3.13"
+readingTime: "9 分鐘"
 seoKeywords:
   - "openclaw vs n8n"
-  - "openclaw vs make"
-  - "ai 自動化比較"
-  - "自動化工具比較"
+  - "openclaw vs zapier"
+  - "openclaw 自動化"
+  - "n8n vs zapier"
 schemaType: "Article"
 relatedArticles:
   - "/compare/vs-chatgpt"
-  - "/start/what-is-openclaw"
-  - "/skills/essential-setup"
+  - "/security/essential-guide"
+  - "/use-cases/whatsapp-assistant"
 ctaType: "setup"
 ---
 
 ## TL;DR
 
-| | OpenClaw | n8n | Make |
+| | OpenClaw | n8n | Zapier |
 |---|---|---|---|
-| **本質** | AI Agent（自然語言） | Workflow 自動化 | Visual Workflow Builder |
-| **決策方式** | AI 自主判斷 | 你設計嘅流程 | 你設計嘅流程 |
-| **學習曲線** | 中等 | 中等 | 低 |
-| **可靠性** | 中（AI 可能做錯） | 高（流程確定） | 高（流程確定） |
-| **費用** | $0（軟件）+ API 費 | $0（自建）/ $20+/月（雲端） | $9–$16+/月 |
-| **適合** | 模糊任務、AI 判斷 | 確定性流程、技術用戶 | 易用流程、非技術用戶 |
+| **類型** | AI Agent（自然語言） | 節點式自動化 | 零代碼自動化 |
+| **部署** | 自託管 | 自託管 / 雲端 | 純雲端 |
+| **決策方式** | AI 自主判斷 | 你設計嘅 if-then 流程 | 你設計嘅 if-then 流程 |
+| **適合任務** | 模糊意圖 + 自主決策 | 確定性流程 | 簡單跨平台串接 |
+| **學習曲線** | 高 | 中 | 低 |
+| **價格** | $0 + API 費 | $0（自建）/ €20/月 | $20–$750/月 |
+| **安全** | 自己控制 | 自己控制（自建）| 第三方 |
 
-**最佳答案：視乎任務係「確定性」還是「需要 AI 判斷」。**
+**關鍵分別：OpenClaw 識「諗」，n8n 同 Zapier 只識「跟指令」。最佳組合？OpenClaw + n8n。**
 
 ---
 
 ## 三款工具嘅本質分別
 
-### OpenClaw：AI 決策
+### OpenClaw：AI 做判斷
 
-你用自然語言告訴 OpenClaw 你想要什麼結果，AI 自己決定點執行。
-
-```
-你：「監控我嘅 GitHub repo，有新 PR 就幫我 review 同分類優先級」
-OpenClaw：自主讀 PR → 理解代碼 → 撰寫 review → 發 Telegram 通知你
-```
-
-優勢係可以處理模糊指令、理解上下文、做出判斷。劣勢係唔確定性——AI 有時可能做出意料之外嘅決定。
-
-### n8n：Workflow 設計
-
-你用視覺化界面設計一個明確嘅流程圖，程式嚴格按流程執行。
+你用自然語言話你想要乜結果，AI 自己決定點做。
 
 ```
-Trigger（新 PR）→ 讀 PR 內容 → 發 Slack 通知 → 加 Label → 完成
+你：「監控 GitHub repo，有新 PR 就幫我 review 同分類優先級」
+OpenClaw：自主讀 PR → 理解代碼 → 撰寫 review → 按重要性分類 → 通知你
 ```
 
-優勢係確定性強，每次都按你設計嘅流程執行，唔會有意外。劣勢係唔能處理你冇預設過嘅情況，每個 case 都需要預先設計好。
+**強項：** 處理模糊指令、理解上下文、做出判斷。
+**弱項：** 唔確定性——AI 有時做錯決定。
 
-### Make（前 Integromat）：Visual Builder
+### n8n：你設計流程
 
-同 n8n 相似，但更注重易用性，大量預建模板，唔太懂技術嘅人也可以上手。
+你用視覺化界面設計流程圖，系統嚴格按流程執行。
+
+```
+Trigger（新 PR）→ 讀 PR metadata → 如果 label = "urgent" → 發 Slack 通知
+                                  → 否則 → 加到 queue
+```
+
+**強項：** 確定性，每次都一樣。可自建，完全免費。
+**弱項：** 冇預設過嘅情況就做唔到。
+
+### Zapier：最簡單嘅串接
+
+類似 n8n，但更注重易用性。大量預建模板，唔識技術都可以上手。
+
+**強項：** 最易用，5000+ 整合。
+**弱項：** 價格最高，數據存喺 Zapier server。
 
 ---
 
-## 完整比較表（8 維度）
+## 完整比較表（9 維度）
 
-| 維度 | OpenClaw | n8n | Make |
-|------|----------|-----|------|
-| **設定方式** | 自然語言 + config | 視覺化 workflow builder | 視覺化 + 大量模板 |
-| **靈活性** | 極高（AI 自主判斷） | 高（但需要預設每個 case） | 中（模板限制） |
+| 維度 | OpenClaw | n8n | Zapier |
+|------|----------|-----|--------|
+| **設定方式** | 自然語言 + config | 視覺化 workflow builder | 視覺化 + 模板 |
+| **靈活性** | 極高（AI 自主判斷） | 高（需預設每個 case） | 中（模板限制） |
 | **可靠性** | 中（AI 有機會做錯） | 高（確定性執行） | 高（確定性執行） |
-| **成本** | $0 + API 費（$5–50/月） | $0（自建）/ $20+/月（雲） | $9–16+/月 |
-| **學習曲線** | 中等（需裝 + 設定） | 中等（需學 workflow 概念） | 低（拖拉界面） |
-| **整合數量** | 50+（Skills） | 400+（Nodes） | 1500+（Apps） |
-| **適合任務** | 需要 AI 判斷嘅模糊任務 | 確定性、重複性流程 | 簡單整合、非技術用戶 |
+| **成本** | $0 + API 費（$5–50/月） | $0（自建）/ €20+/月 | $20–$750/月 |
+| **學習曲線** | 高 | 中 | 低 |
+| **整合數量** | ClawHub 13,000+ Skills | 400+ Nodes | 5000+ Apps |
 | **自建 vs 雲端** | 本地自建 | 兩者都有 | 主要雲端 |
-
----
-
-## OpenClaw 嘅優勢與劣勢
-
-**優勢：**
-- **自然語言設定**：唔需要學 workflow 概念，直接講你要乜
-- **AI 判斷能力**：可以處理「如果 email 係緊急嘅就即刻通知，否則下午一次過摘要」呢類需要判斷嘅情況
-- **靈活應對新情況**：冇預設過嘅情況，AI 也能嘗試處理
-- **本地運行**：數據留係你自己部機
-
-**劣勢：**
-- **唔確定性**：AI 可能做出你唔想要嘅決定
-- **費用較高**：每次呼叫都有 API 費用
-- **安全風險**：本地 Agent 有完整系統權限，詳細睇[安全避坑指南](/security/essential-guide)
-- **難以 debug**：AI 做錯咗，有時唔容易知道點解
-
----
-
-## n8n 嘅優勢與劣勢
-
-**優勢：**
-- **確定性**：流程明確，每次都按你設計嘅方式執行
-- **自建完全免費**：自己搭 n8n server 係 $0
-- **社區大**：大量現成 workflow 模板
-- **400+ 整合**：幾乎所有主流服務都有
-
-**劣勢：**
-- **需要學 workflow 概念**：有少量學習成本
-- **唔能處理模糊任務**：每個情況都需要預先設計好
-- **複雜 logic 難維護**：流程越複雜，維護成本越高
-
----
-
-## Make 嘅優勢與劣勢
-
-**優勢：**
-- **最易用**：拖拉界面，唔識技術也可以上手
-- **1500+ 整合**：整合數量最多
-- **大量模板**：常見 workflow 基本上都有現成模板
-
-**劣勢：**
-- **付費**：免費 tier 有限，實際用量需要付費
-- **閉源**：你嘅 workflow 數據存係 Make 嘅 server
-- **同樣唔能處理模糊任務**：確定性工具嘅共同限制
+| **安全控制** | 完全自己管理 | 自建全控 / 雲端共管 | 第三方管理 |
+| **適合任務** | 需 AI 判斷嘅模糊任務 | 確定性重複流程 | 簡單整合 |
 
 ---
 
 ## 邊種任務用邊款工具？
 
-| 任務類型 | 推薦工具 | 原因 |
+| 任務場景 | 推薦工具 | 原因 |
 |----------|----------|------|
-| 需要 AI 判斷嘅複雜任務 | OpenClaw | AI 自主決策 |
-| 確定性嘅重複性流程 | n8n | 可靠、自建免費 |
-| 快速設定簡單整合 | Make | 易用、多模板 |
-| Email 分類（按重要性） | OpenClaw | 需要 AI 判斷 |
-| CRM 資料同步 | n8n / Make | 確定性流程 |
-| 定時發社交媒體貼文 | n8n / Make | 確定性、唔需要判斷 |
+| 客戶模糊詢問分類 | OpenClaw | 需要 AI 理解語意 |
+| Email 按重要性排優先級 | OpenClaw | 需要 AI 判斷 |
 | PR Code Review | OpenClaw | 需要理解代碼 |
-| API Webhook 轉發 | n8n | 確定性、低成本 |
+| CRM 資料自動同步 | n8n / Zapier | 確定性流程 |
+| Gmail → Google Sheets | Zapier | 簡單、有模板 |
+| 定時發社交媒體 | n8n | 確定性、免費自建 |
+| API Webhook 轉發 | n8n | 低成本、確定性 |
+| 客戶 WhatsApp 自動回覆 | OpenClaw | 需要理解意圖 |
 
 ---
 
-## 最佳實踐：OpenClaw + n8n 配合用
+## 真實場景對比
 
-唔需要只揀一個工具。最強嘅組合係：
+想像你收到一封客戶 email：「我上星期買嘅嗰個嘢好似有啲問題，可以幫我睇睇嗎？」
 
+### Zapier 做法：
+```
+收到 email → 檢查有冇 keyword「問題」→ 轉發去 support@
+```
+問題：keyword matching 太死板，好多變化佢識別唔到。
+
+### n8n 做法：
+```
+收到 email → 正則表達式匹配 → 分類 → 發通知
+```
+好啲，但仍然需要你預設所有匹配規則。
+
+### OpenClaw 做法：
+```
+收到 email → AI 理解：客戶有產品問題
+→ 查 CRM 睇訂單歷史
+→ 判斷優先級：非緊急
+→ 自動回覆：確認收到 + 預計處理時間
+→ 建立 support ticket
+→ Telegram 通知你
+```
+
+OpenClaw 嘅優勢係佢「理解」呢封 email 嘅意圖，而唔係靠 keyword matching。
+
+---
+
+## 最佳組合：OpenClaw + n8n
+
+Gemini Deep Research 嘅分析確認：**AI Agent + 確定性 Workflow 係目前業界最佳實踐。**
+
+原理好簡單：
 - **OpenClaw** 做需要 AI 判斷嘅部分（分析、理解、決策）
-- **n8n** 做確定性嘅流程部分（數據同步、通知轉發、格式轉換）
+- **n8n** 做確定性嘅執行部分（數據同步、格式轉換、通知轉發）
 
-例子：
 ```
-n8n：監控新 GitHub PR（Webhook）→ 觸發 OpenClaw
-OpenClaw：AI Review PR + 分類優先級
-n8n：根據 OpenClaw 嘅結果 → 發通知到不同 Slack channel
+實戰範例：
+
+n8n：監控新 GitHub PR（Webhook trigger）
+  ↓
+n8n：呼叫 OpenClaw Gateway API
+  ↓
+OpenClaw：AI 分析 PR 代碼 + 撰寫 review + 分類優先級
+  ↓
+n8n：根據 OpenClaw 嘅結果
+  → 緊急 → 即刻發 Slack 通知
+  → 普通 → 加到 daily digest
+  → 有安全問題 → 發 email 畀 security team
 ```
 
-呢個組合利用每款工具嘅強項，避免各自嘅弱點。
+呢個組合利用每款工具嘅強項，避免各自嘅弱點。AI 做判斷，workflow 做執行——可靠又靈活。
 
-想知點設定 OpenClaw 同外部工具嘅整合，睇 [Skills 推薦指南](/skills/essential-setup)。
+自託管 n8n 同 OpenClaw 嘅最佳方式係放上 VPS。[DigitalOcean](https://m.do.co/c/7692f5f6464a) 嘅 $12/月 Droplet 或者 [Vultr](https://www.vultr.com/?ref=9882956-9J) 嘅 $6/月 VPS 已經夠跑兩者。
+
+---
+
+## OpenClaw 嘅優勢同限制
+
+**優勢：**
+- 自然語言設定，唔需要學 workflow 概念
+- AI 判斷能力，處理模糊指令
+- 靈活應對新情況
+- 本地運行，數據自己控制
+
+**限制：**
+- AI 可能做錯決定（唔確定性）
+- 每次呼叫都有 API 費用
+- 安全風險——本地 Agent 有完整系統權限，詳細睇[安全避坑指南](/security/essential-guide)
+- 較難 debug（AI 做錯咗有時唔知點解）
+
+---
+
+## n8n 嘅優勢同限制
+
+**優勢：**
+- 確定性執行，每次都按設計運行
+- 自建完全免費
+- 400+ 整合，主流服務都有
+- 社區大，大量現成 workflow 模板
+
+**限制：**
+- 每個情況需要預先設計
+- 複雜 logic 難維護
+- 唔能處理需要 AI 判斷嘅任務
+
+---
+
+## Zapier 嘅優勢同限制
+
+**優勢：**
+- 最易用——拖拉界面，零代碼
+- 5000+ 整合，數量最多
+- 大量模板，常見 workflow 都有
+
+**限制：**
+- 最貴——$20/月起，高用量要 $750/月
+- 閉源——workflow 數據存係 Zapier server
+- 同樣唔能處理模糊任務
 
 ---
 
 ## FAQ
 
+**Q：可唔可以 OpenClaw、n8n、Zapier 同時用？**
+
+完全可以。好多人嘅組合係：OpenClaw 做 AI 判斷 → n8n 做執行流程 → Zapier 做少量簡單串接（因為 Zapier 某啲 App 嘅整合比 n8n 做得好）。唔需要只揀一個。
+
+**Q：n8n 免費版夠唔夠用？**
+
+自建版係完全免費，功能同雲端版一樣，只係你要自己維護 server。如果你識基本嘅 Docker 操作，自建 n8n 唔難——10 分鐘搞掂。如果唔想自己管 server，n8n Cloud 最平 €20/月。
+
 **Q：我完全唔識技術，應該揀邊個？**
 
-Make 係門檻最低嘅，有大量模板，基本上拖拉就可以設定好簡單嘅自動化。如果你嘅需求係「Gmail 收到訂單 email 自動記入 Google Sheets」呢類確定性任務，Make 或 n8n 比 OpenClaw 更適合。OpenClaw 係給想要 AI Agent 嘅人，而唔係想要 workflow builder 嘅人。
+Zapier。門檻最低，大量模板，拖拉就搞掂。如果你嘅需求係「Gmail 收到訂單 email 自動記入 Google Sheets」呢類確定性任務，Zapier 最適合。OpenClaw 係畀想要 AI Agent 嘅人，唔係想要 workflow builder 嘅人。
 
-**Q：OpenClaw 同 n8n 可唔可以整合？**
+**Q：OpenClaw 同 n8n 點樣整合？**
 
-可以。n8n 有 HTTP Request node，可以呼叫 OpenClaw Gateway 嘅 API。反過來，OpenClaw 可以呼叫 n8n 嘅 webhook 觸發 n8n workflow。兩者整合嘅文檔仍然有限，需要自己摸索。
+n8n 有 HTTP Request node，可以呼叫 OpenClaw Gateway API。反過來，OpenClaw 可以呼叫 n8n 嘅 webhook trigger n8n workflow。設定指引可以參考 [WhatsApp 自動化教學](/use-cases/whatsapp-assistant) 入面嘅多工具整合章節。
 
-**Q：如果我只係想試自動化，應該先學邊個？**
+---
 
-建議由 Make 入門（易用、有免費 tier）。理解咗 workflow 概念之後，再決定要唔要升級去 n8n（更強、可自建）或者 OpenClaw（需要 AI 判斷嘅任務）。三者嘅概念有重疊，學咗一個之後其他兩個更易上手。
+## 相關文章
+
+- [OpenClaw vs ChatGPT](/compare/vs-chatgpt) — 想睇 OpenClaw 同 Chatbot 嘅分別
+- [OpenClaw 安全避坑指南](/security/essential-guide) — 自動化工具嘅安全考量
+- [OpenClaw Skills 推薦](/skills/essential-setup) — 裝好 OpenClaw 之後嘅下一步

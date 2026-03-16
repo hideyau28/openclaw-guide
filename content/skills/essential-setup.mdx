@@ -1,18 +1,17 @@
 ---
-title: "OpenClaw 新手必裝 Skills 推薦 + 安全審查指南（2026 年 3 月版）"
-description: "OpenClaw 1800+ Skills 入面邊啲值得裝？邊啲有風險？新手必睇嘅 Skills 推薦清單同安全檢查方法"
+title: "OpenClaw 新手必裝 20 個 Skills 推薦 + 安全審查指南"
+description: "ClawHub 有 13,000+ Skills 但 820+ 係惡意 — 教你點揀安全嘅 Skills，附 Top 20 推薦清單"
 category: "skills"
 slug: "essential-setup"
-date: "2026-03-15"
-lastVerified: "2026-03-15"
-openclawVersion: "2026.3.11"
+date: "2026-03-16"
+lastVerified: "2026-03-16"
+openclawVersion: "2026.3.13"
 readingTime: "10 分鐘"
 seoKeywords:
   - "openclaw skills 推薦"
-  - "openclaw skills"
-  - "openclaw 必裝"
+  - "openclaw clawhub"
   - "openclaw skills 安全"
-  - "clawhub skills"
+  - "openclaw 擴充"
 schemaType: "Article"
 relatedArticles:
   - "/security/essential-guide"
@@ -23,117 +22,155 @@ ctaType: "setup"
 
 ## TL;DR
 
-ClawHub 有 1800+ Skills，其中約 8% 被 Koi Security 標記為惡意。**1800 個裡面，呢 20 個最值得裝——但裝之前一定要做安全檢查。**
+ClawHub 有 13,000+ Skills，但 Koi Security 發現 **820+ 係惡意**——包括排行榜首位嘅 "What Would Elon Do?"。**裝之前一定要審查。** 呢篇畀你 Top 20 推薦清單 + 3 步安全檢查法。
 
 ---
 
-## 先搞清楚：Tools vs Skills 嘅分別
+## 安全審查三步（裝任何 Skill 之前必做）
 
-好多新手搞混呢兩個概念。弄清楚先，後面先睇得明。
+ClawHub 有約 6% 嘅惡意 Skills（820+ 個，來源：Koi Security 報告 + Cisco Talos 研究）。唔好因為下載量高就以為安全。
 
-**Tools = 權限開關**
+### 第一步：檢查 Security Scan 結果
 
-決定 OpenClaw「可唔可以」做某件事。例如：
-- `read` — 可唔可以讀你嘅檔案
-- `write` — 可唔可以寫入檔案
-- `exec` — 可唔可以執行 shell 指令
-- `browser` — 可唔可以控制瀏覽器
-
-**Skills = 教學手冊**
-
-教 Agent「點樣」做某件事。例如：
-- `obsidian` Skill 教 Agent 怎樣讀寫 Obsidian vault
-- `github` Skill 教 Agent 怎樣操作 GitHub PR 同 Issues
-- `telegram` Skill 教 Agent 怎樣收發 Telegram 訊息
-
-**三個條件必須同時滿足，Skill 先能正常運作：**
-
-```
-Tools 權限開咗（exec / read / write）
-         +
-    Skill 裝咗（教 Agent 點用）
-         +
-  外部工具已安裝（例如 Obsidian app）
-         ↓
-      Skill 正常運作
+```bash
+openclaw skill inspect <skill-id>
 ```
 
-**常見誤解：**
-- 裝咗 `obsidian` Skill 但冇開 `write` Tool → Agent 識講點做，但實際做唔到
-- 開咗 `exec` Tool 但冇裝任何 Skill → Agent 有權限，但唔知做乜
-- 裝 Skill 唔會自動開 Tool 權限（這是安全設計）
+睇 Security Scan 一欄：
+
+- **Benign + HIGH CONFIDENCE** = 相對安全 🟢
+- **Benign + LOW CONFIDENCE** = 小心，建議睇源碼 🟡
+- **冇 scan 結果** = 唔好裝，或者自己審查先 🔴
+
+### 第二步：審查 Permission 要求
+
+```bash
+openclaw skill permissions <skill-id>
+```
+
+問自己：**呢個 Skill 嘅功能同佢要求嘅權限係咪合理？**
+
+紅旗範例 🚩：
+- 「天氣查詢」Skill 要求讀 `~/.ssh` → 明顯可疑
+- 「筆記管理」Skill 要求 `exec` 執行任意指令 → 不合理
+- 「RSS 訂閱」Skill 要求網絡訪問 `*.analytics.io` → 可能係追蹤
+
+### 第三步：檢查作者信譽
+
+喺 ClawHub 睇作者頁面：
+
+| 信號 | 評估 |
+|------|------|
+| 多個 Skills + 高 star + 有評論 | 較可信 ✅ |
+| 只有一個 Skill + 零評價 + 高下載 | 可疑 ⚠️ |
+| 新帳號 + 只有一個 Skill | 可疑 ⚠️ |
+| 源碼係 obfuscated（混淆） | 紅旗 🚩 唔好裝 |
 
 ---
 
-## 20 個推薦 Skills（按分類）
+## 危險 Skills 真實案例
 
-### 第一類：生產力（日常最有用）
+### 案例一：「What Would Elon Do?」
 
-| Skill | 來源 | 功能 |
-|-------|------|------|
-| `memory` | 🔵 內置 | 跨 session 記住偏好，越用越聰明 |
-| `obsidian` | 🟢 官方 | 整合 Obsidian 筆記，AI 管理知識庫 |
-| `apple-notes` | 🟢 官方 | 讀寫 Apple Notes |
-| `apple-reminders` | 🟢 官方 | 管理提醒事項 |
-| `notion` | 🟡 社區 | Notion 整合（用前做安全檢查） |
+呢個 Skill 曾經係 ClawHub 排行榜首位，包裝成娛樂工具。實際上係 **prompt injection 惡意軟體**——安裝後會劫持你嘅 Agent，偷偷將指令重導去攻擊者嘅伺服器。
 
-**標籤說明：** 🔵 內置（開箱即用）｜🟢 官方審核｜🟡 社區（需審查）
+Cisco Talos 研究發現呢類惡意 Skills 嘅典型手法：
+- 包裝成有趣 / 有用嘅工具吸引安裝
+- 用 prompt injection 覆蓋你 soul.md 嘅安全規則
+- 喺背景靜靜收集你嘅 API Key 同敏感資料
 
-`memory` 係必裝。OpenClaw 預設每個 session 都係空白嘅，裝咗 `memory` 之後，Agent 會記住你嘅偏好、工作方式、常用設定，越用越順手。
+### 案例二：偽裝 Crypto 工具嘅 AMOS macOS Stealer
 
-### 第二類：通訊（OpenClaw 嘅殺手級應用）
+Koi Security 報告指出有 Skills 偽裝成加密貨幣價格追蹤工具，實際上安裝 AMOS（Atomic macOS Stealer）——專門偷 macOS Keychain 入面嘅密碼、瀏覽器 cookie、加密貨幣錢包。
 
-| Skill | 來源 | 功能 |
-|-------|------|------|
-| `telegram` | 🔵 內置 | Telegram Bot 收發訊息 |
-| `whatsapp` | 🟡 社區 | WhatsApp 整合（用 Baileys） |
-| `discord` | 🟡 社區 | Discord Bot |
-| `slack` | 🟡 社區 | Slack 整合 |
-| `gmail` | 🟡 社區 | Gmail 收發（需 OAuth） |
+<Callout variant="danger">
+**下載量高 ≠ 安全。** 惡意 Skills 會用 bot 刷下載量同評價。永遠用上面嘅三步檢查法。詳細嘅安全風險睇[安全避坑指南](/security/essential-guide)。
+</Callout>
 
-`telegram` 係最多人用嘅 channel。裝好之後可以直接喺 Telegram 同你嘅 Agent 對話、下指令、收通知。詳細設定睇[macOS 安裝教學](/install/macos)。
+---
+
+## Top 20 推薦 Skills
+
+標籤說明：🔵 內置 ｜🟢 官方審核 ｜🟡 社區（已通過安全掃描）
+
+### 通訊類
+
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| Telegram Integration | 145K | 🔵 | Telegram Bot 收發訊息（最多人用嘅 channel） |
+| wacli WhatsApp | 25K | 🟡 | WhatsApp 整合（用 Baileys，非官方 API） |
+| Email Manager | 120K | 🟢 | Email 收發管理 |
 
 <Callout variant="warning">
-**`whatsapp` 特別注意：** 用 Baileys 庫（非官方 API），WhatsApp 有機會封帳號。建議用次要帳號測試，唔好用主號。
+**wacli WhatsApp 注意：** 用 Baileys 庫（非官方 API），WhatsApp 有機會封帳號。建議用次要帳號測試。詳細睇 [WhatsApp 自動化教學](/use-cases/whatsapp-assistant)。
 </Callout>
 
-### 第三類：開發者工具
+### 生產力類
 
-| Skill | 來源 | 功能 |
-|-------|------|------|
-| `github` | 🟢 官方 | PR review、Issue 管理、repo 操作 |
-| `git` | 🔵 內置 | 本地 git 操作 |
-| `docker` | 🟢 官方 | Container 管理 |
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| Calendar | 88K | 🟢 | 行事曆管理同提醒 |
+| PDF-Skill | 76K | 🟢 | PDF 讀取、分析、摘要 |
+| Gog Google Workspace | 34K | 🟡 | Google Docs / Sheets / Drive 整合 |
 
-`github` 係開發者最值得裝嘅 Skill。設定好之後，可以叫 Agent 幫你 review PR、整理 Issue、自動生成 commit message。
+### 開發者工具
 
-### 第四類：自動化
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| GitHub | 22K | 🟢 | PR review、Issue 管理、repo 操作 |
+| Playwright MCP | 12K | 🟡 | 瀏覽器自動化測試 |
 
-| Skill | 來源 | 功能 |
-|-------|------|------|
-| `cron` | 🔵 內置 | 定時任務排程 |
-| `webhook` | 🔵 內置 | 接收外部觸發 |
-| `browser` | 🔵 內置 | 網頁自動化、填 form、抓資料 |
+### 搜索類
 
-呢三個加埋係 OpenClaw 自動化嘅核心。`cron` 定時執行、`webhook` 接受外部觸發、`browser` 實際操作網頁。三個都係內置，唔使安裝，直接可用。
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| Web-Browsing | 180K | 🔵 | 網頁瀏覽同抓取 |
+| Tavily Search | 19K | 🟡 | AI 優化嘅搜索 API |
 
-### 第五類：資訊
+### 數據類
 
-| Skill | 來源 | 功能 |
-|-------|------|------|
-| `web-search` | 🟢 官方 | 網上搜尋（需要 Brave/Google API） |
-| `hacker-news` | 🟡 社區 | 追蹤 HN 熱門 |
-| `rss` | 🟡 社區 | RSS feed 監控 |
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| DB Query | 95K | 🟢 | 數據庫查詢（PostgreSQL / MySQL / SQLite） |
+| Data Viz | 58K | 🟡 | 數據視覺化，生成圖表 |
 
-### 第六類：智能家居 / IoT
+### 知識管理
 
-| Skill | 來源 | 功能 |
-|-------|------|------|
-| `home-assistant` | 🟡 社區 | 控制智能家居 |
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| Obsidian Direct | 8K | 🟡 | Obsidian vault 讀寫 |
+| byterover | 15K | 🟡 | 知識庫搜索同整理 |
 
-<Callout variant="tip">
-**我嘅實際設定：** Mac Mini 有 37 個 eligible Skills，16 個因缺少 requirements 暫時未用。日常最常用係 `memory`、`telegram`、`cron`、`browser`、`github`。
-</Callout>
+### 自動化
+
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| n8n Workflow | 52K | 🟡 | 觸發同管理 n8n workflow |
+
+### AI 核心
+
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| self-improving | 2.5K | 🟡 | Agent 自我優化 soul.md |
+| cap-evolver | 7.5K | 🟡 | Agent 能力自動進化 |
+
+### 安全
+
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| agent-audit | 2.8K | 🟡 | 審計 Agent 行為同權限 |
+
+### 學術
+
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| academic-research | 4.5K | 🟡 | 學術論文搜索同摘要 |
+
+### 語音
+
+| Skill | 安裝數 | 來源 | 功能 |
+|-------|--------|------|------|
+| ElevenLabs | 7K | 🟡 | AI 語音合成 |
 
 ---
 
@@ -141,70 +178,30 @@ Tools 權限開咗（exec / read / write）
 
 ```bash
 # 安裝單個 Skill
-openclaw skill install memory
 openclaw skill install telegram
 openclaw skill install github
-
-# 睇已安裝嘅 Skills
-openclaw skill list
+openclaw skill install pdf-skill
 
 # 搜尋 ClawHub
 openclaw skill search obsidian
 
-# 睇 Skill 詳情（安裝前先做呢步）
+# 安全檢查（裝之前必做）
 openclaw skill inspect <skill-id>
+openclaw skill permissions <skill-id>
+
+# 睇已安裝嘅 Skills
+openclaw skill list
 ```
 
 ---
 
-## 安全審查三步檢查法
-
-ClawHub 有約 8% 嘅惡意 Skills（820+ 個，來源：Koi Security 報告）。**裝任何社區 Skill 之前，跟呢三步做。**
-
-### 第一步：睇 Security Scan 結果
-
-喺 ClawHub 頁面搵 Security Scan 一欄：
-
-![ClawHub Skill inspect 頁面，顯示 Security Scan 結果](/images/articles/essential-guide/clawHub-skill-inspect.webp)
-
-- **Benign + HIGH CONFIDENCE** = 相對安全，可以安裝
-- **Benign + LOW CONFIDENCE** = 小心，建議睇源碼
-- **冇 scan 結果** = 唔好裝，或者自己審查源碼先
-
-### 第二步：檢查 Permission 要求
-
-```bash
-# 睇呢個 Skill 要求哪些權限
-openclaw skill inspect <skill-id>
-```
-
-問自己：**呢個 Skill 嘅功能同佢要求嘅權限係咪合理？**
-
-紅旗範例：
-- 一個「天氣查詢」Skill 要求讀 `~/.ssh` 目錄 → 明顯可疑
-- 一個「筆記管理」Skill 要求 `exec` 執行任意指令 → 不合理
-- 一個「RSS 訂閱」Skill 要求網絡訪問 `*.analytics.io` → 可能係追蹤
-
-### 第三步：檢查作者信譽
-
-喺 ClawHub 睇作者頁面：
-
-| 信號 | 說明 |
-|------|------|
-| 多個 Skills + 高 star + 有評論 | 較可信 |
-| 只有一個 Skill + 零評價 + 下載量高 | 可疑 |
-| 最近才創建帳號 + 只有一個 Skill | 可疑 |
-| 源碼係 obfuscated（混淆） | 紅旗，唔好裝 |
-
----
-
-## 安全設定（推薦）
+## 安全設定（強烈推薦）
 
 ```bash
 # 只允許安裝官方認證嘅 Skills（最保守）
 openclaw config set skills.verified_only true
 
-# 關閉自動更新，改為手動審查
+# 關閉自動更新，手動審查每次更新
 openclaw config set skills.auto_update false
 
 # 確認設定
@@ -212,52 +209,68 @@ openclaw config get skills
 ```
 
 <Callout variant="warning">
-**自動更新有風險：** 一個原本安全嘅 Skill，作者可以喺更新版本加入惡意代碼。建議關閉自動更新，手動審查每次更新內容先安裝。詳細風險睇[安全避坑指南](/security/essential-guide)。
+**自動更新有風險：** 原本安全嘅 Skill，作者可以喺更新版本加入惡意代碼。建議關閉自動更新，手動審查更新內容先安裝。
 </Callout>
+
+---
+
+## 3 個高價值 Skills Combo
+
+### Combo 1：私域流量
+
+**wacli + Email Manager + DB Query**
+
+WhatsApp / Email 接收客戶訊息 → Agent 自動分類同回覆 → DB Query 記錄客戶互動數據。適合小型電商同服務業。
+
+### Combo 2：學術研究
+
+**academic-research + PDF-Skill + Obsidian Direct**
+
+搜索論文 → AI 摘要 PDF → 自動整理入 Obsidian 知識庫。適合研究人員同學生。
+
+### Combo 3：無代碼編排
+
+**n8n Workflow + Tavily Search + Telegram Integration**
+
+n8n 做確定性流程、Tavily 做智能搜索、Telegram 做通知渠道。適合想要 AI + workflow 自動化嘅用戶。呢個組合嘅理念同 [OpenClaw + n8n 最佳實踐](/compare/vs-n8n) 一致。
 
 ---
 
 ## FAQ
 
-**Q：裝 Skill 會唔會自動開相應嘅 Tool 權限？**
+**Q：裝 Skill 會唔會自動開 Tool 權限？**
 
-唔會。Skills 同 Tools 係分開管理嘅。裝 `obsidian` Skill 唔會自動開 `write` Tool。呢個係安全設計——你需要明確決定畀哪些權限 Agent，唔係裝個 Skill 就自動獲得所有所需權限。如果 Skill 需要某個 Tool 但你冇開，Agent 會話佢你需要先開對應權限。
+唔會。Skills 同 Tools 分開管理。裝 `obsidian` Skill 唔會自動開 `write` Tool。呢個係安全設計——你需要明確決定畀哪些權限。
 
 **Q：可唔可以自己寫 Skill？**
 
-可以。Skill 本質上係一個 Markdown 格式嘅教學文件，教 Agent 點樣用某個工具或服務。你可以寫自己公司嘅內部工具 Skill、自己嘅工作流程 Skill，甚至上載去 ClawHub 分享。自己寫嘅 Skill 只存係本地，唔需要安裝，直接放喺 `~/.openclaw/skills/` 目錄即可。
+可以。Skill 本質上係 Markdown 教學文件，教 Agent 點用某個工具。你可以寫自己嘅內部工具 Skill，直接放喺 `~/.openclaw/skills/` 目錄，唔需要安裝。
 
-**Q：裝咗幾多 Skills 先算「太多」？**
+**Q：裝咗幾多 Skills 先算太多？**
 
-質比量重要。我建議裝少少但用緊嘅，唔好見到有趣就裝。每個 Skill 都可能帶嚟安全風險（尤其是社區 Skill），而且太多 Skill 會增加 context window 佔用，影響 Agent 判斷。我自己只裝我實際每星期都用到嘅 Skills，目前係 8 個左右。
+質比量重要。每個 Skill 都可能帶嚟安全風險，太多 Skill 會增加 context window 佔用，影響 Agent 判斷。我自己只裝實際每星期用到嘅——8 個左右。
 
 **Q：ClawHub 上邊啲 Skill 千祈唔好裝？**
 
-- 冇 Security Scan 結果嘅社區 Skill（尤其係下載量高但冇評論）
-- 要求跟功能唔相符嘅過份權限嘅 Skill
-- 源碼係 obfuscated（混淆過）嘅 Skill
-- 只有一個 Skill 嘅新帳號作者發布嘅 Skill
-- 要求讀取 `~/.ssh`、`~/.aws`、`~/Library/Keychains` 等敏感目錄嘅 Skill
+- 冇 Security Scan 結果嘅社區 Skill（尤其下載量高但冇評論）
+- 要求跟功能唔相符嘅過份權限
+- 源碼係 obfuscated（混淆過）
+- 新帳號作者只發布咗一個 Skill
+- 要求讀取 `~/.ssh`、`~/.aws`、`~/Library/Keychains` 等敏感目錄
 
 **Q：點樣移除已裝嘅 Skill？**
 
 ```bash
-# 移除單個 Skill
 openclaw skill uninstall <skill-id>
-
-# 例如
-openclaw skill uninstall notion
-
-# 確認已移除
-openclaw skill list
+openclaw skill list  # 確認已移除
 ```
 
-移除 Skill 唔會改變你嘅 Tool 權限設定，只係移除那份「教學手冊」。
+移除 Skill 唔會改變 Tool 權限設定，只係移除嗰份「教學手冊」。
 
 ---
 
 ## 相關文章
 
 - [OpenClaw 安全避坑指南](/security/essential-guide) — ClawJacked 漏洞同惡意 Skills 完整說明
-- [OpenClaw macOS 安裝教學](/install/macos) — 包含 Telegram Skill 設定步驟
+- [OpenClaw macOS 安裝教學](/install/macos) — 裝好 OpenClaw 之後嘅下一步
 - [Gateway 排錯指南](/troubleshoot/gateway) — Skill 用唔到？先確認 Gateway 正常

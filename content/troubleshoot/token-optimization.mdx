@@ -1,222 +1,61 @@
 ---
-title: "OpenClaw 兩個鐘燒 $100？Token 慳錢 5 招實測攻略"
-description: "OpenClaw API 費用失控？教你點睇 Token 消耗、點揀平嘅模型、點開新 session 避免歷史記錄累積燒錢"
+title: "OpenClaw Token 慳錢 5 招：避免一日燒 $25 美金嘅慘痛教訓"
+description: "控制 OpenClaw API Token 使用量 — 設定預算上限、選擇平價模型、減少無謂對話、避免 token 失控迴圈"
 category: "troubleshoot"
 slug: "token-optimization"
-date: "2026-03-15"
-lastVerified: "2026-03-15"
-openclawVersion: "2026.3.11"
-readingTime: "8 分鐘"
+date: "2026-03-16"
+lastVerified: "2026-03-16"
+openclawVersion: "2026.3.13"
+readingTime: "7 分鐘"
 seoKeywords:
+  - "openclaw token 費用"
+  - "openclaw api 慳錢"
+  - "openclaw token 優化"
   - "openclaw 費用"
-  - "openclaw token 貴"
-  - "openclaw api 費用"
-  - "openclaw 慳錢"
-  - "openclaw token optimization"
-schemaType: "HowTo"
+schemaType: "Article"
 relatedArticles:
   - "/install/macos"
   - "/security/essential-guide"
-  - "/compare/vs-chatgpt"
+  - "/troubleshoot/gateway"
 ctaType: "setup"
 ---
 
-## TL;DR — 5 招防止 API 費用失控
+## TL;DR
 
-1. **開新 Session** — 每個任務用 `/new`，唔好讓 history 無限累積
-2. **換平嘅模型** — 日常任務用 Haiku 或 DeepSeek，唔係每樣都要 Opus
-3. **降低 Think Mode** — `think: low` 可以大幅減少 token 消耗
-4. **用 Cron 代替持續監控** — 定時執行，唔好叫 Agent「不停 check」
-5. **設用量上限** — 喺 API provider dashboard 設 hard limit 防意外
+V2EX 有用戶一日燒咗 2500 萬 token（約 $25 USD），原因係 Agent 陷入重試迴圈——不停 retry 失敗嘅 API call，每次都傳入完整 session history。**呢個唔係 Bug，係你冇設上限。**
+
+5 招防止燒錢：
+1. 設每日 Token 預算上限
+2. 用 OpenRouter 做 model fallback
+3. 精簡 soul.md 減少 system prompt 長度
+4. 關閉不必要嘅 background task
+5. 監控 Token 使用量 + 設 alert
 
 ---
 
-## 點解會咁貴？Session History 累積機制
+## 點解會燒錢？Token 累積機制
 
-MIT Technology Review 報導過有用戶用 Claude Opus 4.5 兩個鐘燒咗 **$100 美金**。唔係 Bug，而係 OpenClaw 嘅設計：**每次對話都會將整個 session 歷史傳畀 API。**
-
-想像係咁：
+OpenClaw 嘅每次 API call 都會傳入完整 session history。即係：
 
 ```
-第 1 次對話：傳 100 tokens（你嘅問題）
-第 2 次對話：傳 100 + 500 tokens（問題 + 第 1 次完整對話）
-第 3 次對話：傳 100 + 500 + 1200 tokens（問題 + 前兩次完整對話）
+第 1 次對話：100 tokens
+第 2 次對話：100 + 500 = 600 tokens
+第 3 次對話：100 + 500 + 1200 = 1800 tokens
 ...
-第 20 次對話：傳 幾萬 tokens
+第 20 次對話：幾萬 tokens
 ```
 
-呢個係 LLM 嘅基本運作方式——AI 需要看到完整對話歷史先能理解 context。但問題係，好多人開咗一個 session 就用成日，越用越貴。
-
-**我自己嘅情況：**
-
-TUI 底部會實時顯示 token 用量，例如 `tokens 10k/272k (4%)`。跑住 5 個 Agent（main、crawler、webtest、coder、social），如果唔留意，一個長 session 可以輕易消耗幾萬 token。
+再加上 Agent 自動重試、background task 不停跑、think mode 開到最高——費用就係咁失控嘅。
 
 <Callout variant="warning">
-**最危險嘅組合：** 長 session + 頂級模型（Claude Opus 4.6 / GPT-5.4）。一個跑咗幾小時嘅 Coder Agent session，token 消耗可以係新 session 嘅 10–50 倍。
+**最危險嘅組合：** 長 session + 頂級模型（Claude Opus 4.6 / GPT-5.4）+ think: high + Agent 陷入 retry loop。呢個組合可以喺幾個鐘內燒 $50–100。
 </Callout>
 
 ---
 
-## 招一：定期開新 Session
+## 招一：設定每日 Token 預算上限
 
-最簡單、效果最大嘅一招。
-
-**為什麼有效：** 新 session 冇歷史 context，每次對話只傳你當前嘅指令，token 消耗係最低點。
-
-**3 種開新 Session 嘅方法：**
-
-```bash
-# 方法一：TUI 入面
-/new
-
-# 方法二：Telegram 打
-/new
-
-# 方法三：CLI
-openclaw sessions new
-```
-
-**實際建議：**
-
-- 每個獨立任務開一個新 session
-- 完成一個項目後唔好繼續喺同一個 session 做下一件事
-- Coder Agent 每次 code review 任務開新 session
-- Crawler Agent 每次抓數據任務開新 session
-
-<Callout variant="tip">
-**記憶 vs Session：** 你嘅 Agent 嘅長期記憶同 session 係分開嘅。開新 session 唔會清除 Agent 嘅 persistent memory，只係重置當前對話的 context。
-</Callout>
-
----
-
-## 招二：揀啱模型（價格差距極大）
-
-唔係所有任務都需要最貴嘅模型。用對模型可以慳 90% 費用。
-
-### 主要 Provider 定價比較（2026 年 3 月）
-
-| 模型 | Input（/1M tokens） | Output（/1M tokens） | 適合任務 |
-|------|---------------------|----------------------|----------|
-| Claude Opus 4.6 | $15.00 | $75.00 | 最複雜推理、架構設計 |
-| Claude Sonnet 4.6 | $3.00 | $15.00 | 日常編程、分析 |
-| Claude Haiku 4.5 | $0.25 | $1.25 | 簡單任務、高頻 Agent |
-| GPT-5.4 | ~$10.00 | ~$30.00 | 通用、工具整合 |
-| GPT-4o mini | $0.15 | $0.60 | 輕量任務、分類 |
-| DeepSeek V3 | $0.27 | $1.10 | 高 CP 值，中文佳 |
-| Kimi K2.5 | $0.15 | $0.60 | 中文任務、長 context |
-| 本地模型（Ollama） | 免費 | 免費 | 需要 Apple Silicon / GPU |
-
-*價格為參考，以各 provider 官方定價為準。*
-
-<AffiliateBanner provider="openrouter" />
-
-**按任務揀模型：**
-
-```yaml
-# ~/.openclaw/config.yaml 範例
-agents:
-  coder:
-    model: claude-sonnet-4-6      # 複雜代碼任務
-  crawler:
-    model: claude-haiku-4-5       # 簡單抓數據，高頻執行
-  social:
-    model: gpt-4o-mini            # 輕量文字處理
-  main:
-    model: claude-sonnet-4-6      # 日常主 Agent
-    fallback_model: claude-haiku-4-5  # 超出 budget 時 fallback
-```
-
----
-
-## 招三：控制 Think Mode
-
-OpenClaw 有三個 think mode，直接影響 token 消耗：
-
-| Think Mode | Token 消耗 | 適合場景 |
-|---|---|---|
-| `think: high` | 最多（3–5x） | 複雜推理、架構決策 |
-| `think: medium` | 中等（1.5–2x） | 一般任務 |
-| `think: low` | 最少（1x） | 簡單指令、自動化任務 |
-
-TUI 底部會顯示當前 think mode，例如 `think low`。
-
-**設定方法：**
-
-```bash
-# 喺 TUI 入面
-/think low
-/think medium
-/think high
-
-# 或者 config 入面設預設
-openclaw config set agents.default.think low
-```
-
-<Callout variant="tip">
-**我嘅設定：** Crawler、Social 等自動化 Agent 用 `think: low`，Coder Agent 做複雜 review 先用 `think: high`。大部分日常任務 `think: low` 完全夠用。
-</Callout>
-
----
-
-## 招四：用 Cron Job 代替持續監控
-
-新手常見錯誤：叫 Agent「幫我一直監控某個網站，有更新就通知我」。
-
-問題係 Agent 會係咁跑、係咁問 AI，每次都傳入整個對話歷史，費用直線上升。
-
-**正確做法：用 Cron Job**
-
-```bash
-# 設定每小時執行一次，用新 session
-openclaw cron add --schedule "0 * * * *" \
-  --agent crawler \
-  --command "check site updates" \
-  --new-session
-
-# 每天早上 9 點跑 social agent
-openclaw cron add --schedule "0 9 * * *" \
-  --agent social \
-  --command "daily social monitoring" \
-  --new-session
-```
-
-每次 cron 執行都係一個新 session，token 消耗係最低嘅基礎量，唔會累積。
-
-**節省效果估算：**
-
-| 方式 | 一日 100 次監控嘅費用（Haiku） |
-|---|---|
-| 持續監控（長 session） | ~$2–5（context 不斷累積） |
-| Cron Job（每次新 session） | ~$0.10–0.30 |
-
----
-
-## 招五：監控用量 + 設上限
-
-### 實時監控：TUI 底部
-
-TUI 底部會顯示：
-```
-tokens 10k/272k (4%)  think low  claude-sonnet-4-6
-```
-
-- `10k`：當前 session 已用 token
-- `272k`：context window 上限
-- `(4%)`：使用百分比
-- `think low`：當前 think mode
-
-### 設用量上限（必做）
-
-**OpenAI：**
-1. 去 [platform.openai.com/settings/organization/limits](https://platform.openai.com/settings/organization/limits)
-2. 設 **Soft limit**（達到時發 email）
-3. 設 **Hard limit**（達到時停止 API call）
-
-**Anthropic：**
-1. 去 [console.anthropic.com/settings/limits](https://console.anthropic.com/settings/limits)
-2. 設月度用量上限
-
-**OpenClaw Config 設 Budget Alert：**
+最基本嘅保險。
 
 ```bash
 # 設每日 budget 上限（美元）
@@ -225,50 +64,200 @@ openclaw config set budget.daily_limit 5.00
 # 設每月上限
 openclaw config set budget.monthly_limit 50.00
 
-# 達到上限嘅行為（warn / stop / fallback）
-openclaw config set budget.on_limit warn
+# 達到上限嘅行為
+openclaw config set budget.on_limit fallback
+# 選項：warn（警告但繼續）/ stop（停止）/ fallback（切換到平嘅 model）
 ```
 
-<Callout variant="warning">
-**強烈建議：** 第一次設定 OpenClaw 就即刻喺 API provider 設 hard limit。唔係唔信任自己，係防止設定錯誤或者 runaway Agent 導致意外費用。
-</Callout>
+另外，**一定要喺 API provider 嗰邊都設 hard limit**：
+
+- **OpenAI：** platform.openai.com → Settings → Limits → 設 Hard limit
+- **Anthropic：** console.anthropic.com → Settings → 設月度上限
+
+兩邊都設先安全。OpenClaw config 嘅上限係軟限制，Provider 嘅 hard limit 先係真正嘅保險。
 
 ---
 
-## 月費預算參考
+## 招二：用 OpenRouter 做 Model Fallback
 
-| 用戶類型 | 用法 | 估計月費 |
+唔係每個任務都需要最貴嘅 model。用 OpenRouter，你可以一個 key 接入所有 model，然後按任務分配。
+
+### 各 Model 價格對比（2026 年 3 月）
+
+| 模型 | Input（/1M tokens） | Output（/1M tokens） | 適合任務 |
+|------|---------------------|----------------------|----------|
+| Claude Opus 4.6 | $15.00 | $75.00 | 最複雜推理、架構設計 |
+| GPT-5.4 | ~$10.00 | ~$30.00 | 通用、工具整合 |
+| Claude Sonnet 4.6 | $3.00 | $15.00 | 日常編程、分析 |
+| Claude Haiku 4.5 | $0.25 | $1.25 | 簡單任務、高頻 Agent |
+| DeepSeek V3 | $0.27 | $1.10 | 高 CP 值、中文佳 |
+| GPT-4o mini | $0.15 | $0.60 | 輕量任務、分類 |
+| 本地 Ollama | 免費 | 免費 | 需要 Apple Silicon / GPU |
+
+**按任務分配 model：**
+
+```yaml
+# ~/.openclaw/config.yaml
+agents:
+  main:
+    model: claude-sonnet-4-6          # 日常任務
+    fallback_model: claude-haiku-4-5  # 超 budget 自動切換
+  coder:
+    model: claude-sonnet-4-6          # 代碼任務需要質素
+  crawler:
+    model: claude-haiku-4-5           # 抓數據唔需要貴 model
+  social:
+    model: gpt-4o-mini                # 輕量文字處理
+```
+
+<AffiliateBanner provider="openrouter" />
+
+如果你有長期高頻嘅自動化任務，另一個慳錢方法係自託管 — 用 [DigitalOcean](https://m.do.co/c/7692f5f6464a) 或 [Vultr](https://www.vultr.com/?ref=9882956-9J) 嘅 VPS 跑 Ollama 本地 model，完全唔使 API 費用。初始設定麻煩少少，但長期計絕對更平。
+
+---
+
+## 招三：精簡 soul.md
+
+soul.md 嘅內容每次 API call 都會傳入。1000 字嘅 soul.md ≈ 每次對話額外消耗 ~1500 tokens。
+
+**精簡原則：**
+
+- 砍到 500 字以內
+- 刪走 Agent 已經識做嘅事（例如唔使寫「你識寫代碼」）
+- 合併重複規則
+- 用短句代替長句
+
+```markdown
+# ❌ 之前（800 字）
+你係一個非常專業嘅 AI 助手，你嘅主要職責係幫助我完成日常工作。
+你應該用繁體中文回覆，語氣要專業但唔好太正式...（後面仲有一大段）
+
+# ✅ 之後（200 字）
+你係 Claw，我嘅 AI 助手。叫我 Yau。
+- 繁體中文（香港用語），簡潔直接
+- shell 指令前要我確認
+- 唔好刪檔案、發 email、操作社交媒體
+- 唔好透露 API Key
+```
+
+詳細嘅 soul.md 寫法睇 [soul.md 完整教學](/start/soul-md)。
+
+---
+
+## 招四：關閉不必要嘅 Background Task
+
+新手常見錯誤：開咗一堆 cron job 同 heartbeat 但冇留意頻率。
+
+```bash
+# 睇所有 cron job
+openclaw cron list
+
+# 常見問題：heartbeat 每分鐘跑一次
+# 每次都係一個 API call，一日 = 1440 次
+openclaw config set agents.main.heartbeat.interval 30m  # 改成 30 分鐘
+
+# 刪除唔需要嘅 cron
+openclaw cron remove <cron-id>
+```
+
+**頻率調整建議：**
+
+| Task 類型 | 建議頻率 | 原因 |
+|-----------|----------|------|
+| 伺服器監控 | 每 15–30 分鐘 | 大部分服務唔會一分鐘內出事 |
+| 社交媒體監控 | 每 1–4 小時 | 除非你做即時客服 |
+| RSS / 新聞抓取 | 每 6–12 小時 | 新聞唔需要即時 |
+| Email 檢查 | 每 15–30 分鐘 | 夠用 |
+
+每次 cron 執行記得用 `--new-session`，避免 session history 累積：
+
+```bash
+openclaw cron add --schedule "*/30 * * * *" \
+  --agent crawler \
+  --command "check site updates" \
+  --new-session
+```
+
+---
+
+## 招五：監控 Token 使用量
+
+### 即時監控：TUI 底部
+
+```
+tokens 10k/272k (4%)  think low  claude-sonnet-4-6
+```
+
+- `10k`：當前 session 已用 token
+- `think low`：當前 think mode（low 最慳）
+- 見到 token 超過 50k，考慮開新 session
+
+### 設 Alert
+
+```bash
+# session token 警告
+openclaw config set budget.session_warn 50000
+
+# 達到時 Telegram 通知
+openclaw config set budget.alert_channel telegram
+```
+
+### Think Mode 控制
+
+```bash
+# 日常任務用 low
+/think low
+
+# 複雜推理先用 high
+/think high
+
+# 設預設
+openclaw config set agents.default.think low
+```
+
+| Think Mode | Token 消耗 | 適合場景 |
 |---|---|---|
-| **輕度** | 每日少量對話，主要用 Haiku | $5–10 |
-| **中度** | 多個 Agent，定期自動化任務，Sonnet 為主 | $20–30 |
-| **重度** | 5+ Agents，高頻 Cron，部分用 Opus | $50–100+ |
+| `think: high` | 3–5x | 架構設計、複雜推理 |
+| `think: medium` | 1.5–2x | 一般任務 |
+| `think: low` | 1x | 簡單指令、自動化 |
 
-呢個係估算，實際費用視乎你嘅 session 長度、think mode、選用模型。開新 session 呢個習慣一個人可以慳 50–80% 費用。
+---
+
+## 真實成本估算
+
+| 用戶類型 | 用法描述 | 估計月費 |
+|---|---|---|
+| **輕度** | 每日少量對話，Haiku 為主 | $3–8 |
+| **中度** | 2–3 個 Agent，定期 cron，Sonnet 為主 | $15–30 |
+| **重度** | 5+ Agents，高頻 cron，部分用 Opus | $50–100+ |
+| **失控** | 冇設上限、長 session、retry loop | $25+/日 ⚠️ |
+
+開新 session + 用啱 model + 設上限，一個人可以慳 60–80% 費用。
 
 ---
 
 ## FAQ
 
-**Q：OpenClaw 本身使唔使錢？**
+**Q：OpenClaw 本身收唔收錢？**
 
-OpenClaw 軟件本身係開源免費。費用嚟自你用嘅 LLM API——即係每次 OpenClaw 問 Claude 或 GPT 問題時嘅 API call 費用。軟件免費，但跑 AI 嘅算力要錢。詳細睇[OpenClaw vs ChatGPT 費用比較](/compare/vs-chatgpt)。
+OpenClaw 軟件本身開源免費。費用只嚟自你用嘅 LLM API——即係每次 Agent 問 Claude 或 GPT 問題時嘅 API call 費用。想了解 OpenClaw 同 ChatGPT 嘅費用結構分別，睇 [OpenClaw vs ChatGPT](/compare/vs-chatgpt)。
 
-**Q：用本地模型係咪完全免費？**
+**Q：邊個 model 最平？**
 
-係，本地模型（例如透過 Ollama 跑 Llama、Mistral 等）唔需要 API 費用。但你需要有足夠嘅硬件：Apple Silicon Mac（M1/M2/M3/M4）或者有獨立 GPU 嘅 PC。模型質素亦通常低過頂級雲端模型。適合想完全本地化、唔想有任何費用嘅用戶。
+雲端 model 入面，GPT-4o mini（$0.15/1M input tokens）同 DeepSeek V3（$0.27/1M）係最平嘅。如果你有 Apple Silicon Mac，跑 Ollama 本地 model 完全免費。但本地 model 質素通常低過頂級雲端 model。
+
+**Q：可唔可以用免費 model？**
+
+可以。OpenAI Codex OAuth 有免費額度（唔使信用卡），Google Gemini 有免費 tier，DeepSeek 有少量免費額度。另外 Ollama 本地 model 完全免費。詳細各 provider 設定方法睇 [API Key 設定教學](/install/api-keys)。
 
 **Q：點知我而家燒咗幾多錢？**
 
-兩個地方睇：一係 TUI 底部嘅實時 token 顯示（`tokens X/Y (Z%)`），可以估算當前 session 嘅消耗。二係你嘅 API provider dashboard——OpenAI 有 Usage 頁面、Anthropic 有 Console 用量統計，都可以睇到實際費用。建議每隔幾日睇一次直至習慣咗自己嘅用量模式。
-
-**Q：有冇方法設用量上限，用完就停？**
-
-有。OpenAI 同 Anthropic 都支持喺 dashboard 設 hard limit，達到上限後 API call 會返回錯誤，OpenClaw 就唔能再發出請求。另外 OpenClaw config 入面都可以設 `budget.daily_limit`，達到後會根據你設嘅 `on_limit` 行為（warn / stop / fallback to cheaper model）處理。強烈建議兩個都設。
+TUI 底部有實時 token 顯示。另外去各 Provider 嘅 dashboard（OpenAI Usage、Anthropic Console）可以睇到實際費用。建議每隔幾日睇一次，直至習慣咗自己嘅用量模式。
 
 ---
 
 ## 相關文章
 
-- [OpenClaw macOS 安裝教學](/install/macos) — 第一次裝，從頭設定好費用控制
-- [OpenClaw vs ChatGPT 費用比較](/compare/vs-chatgpt) — 兩者成本詳細對比
-- [OpenClaw 安全設定指南](/security/essential-guide) — API key 安全管理，防止 key 外洩導致被盜用燒錢
+- [API Key 設定教學](/install/api-keys) — 設定好 Key 之後，跟住呢篇慳錢
+- [OpenClaw 安全避坑指南](/security/essential-guide) — API key 安全管理，防止被盜用燒錢
+- [Gateway 排錯指南](/troubleshoot/gateway) — Gateway 出問題可能導致 retry loop 燒錢
