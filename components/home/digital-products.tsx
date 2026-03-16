@@ -31,7 +31,7 @@ export function DigitalProducts() {
         {products.map((p) => (
           <div
             key={p.title}
-            className="flex flex-col rounded-lg border border-gray-200 p-6"
+            className="flex flex-col rounded-lg border border-gray-200 p-6 transition-all hover:border-red-200 hover:shadow-md"
           >
             <h3 className="mb-2 font-semibold leading-snug">{p.title}</h3>
             <p className="mb-4 flex-1 text-sm text-gray-600">{p.description}</p>
@@ -39,7 +39,7 @@ export function DigitalProducts() {
               <span className="text-lg font-bold text-gray-900">{p.price}</span>
               <a
                 href={p.href}
-                className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+                className="rounded-lg bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800"
               >
                 {p.cta}
               </a>

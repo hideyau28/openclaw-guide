@@ -2,23 +2,19 @@ import Link from "next/link";
 import type { ArticleMeta } from "@/lib/mdx";
 import { CTA_CONFIG, type CtaType } from "@/lib/constants";
 
-export function ArticleFooter({
-  meta,
-}: {
-  readonly meta: ArticleMeta;
-}) {
+export function ArticleFooter({ meta }: { readonly meta: ArticleMeta }) {
   const cta = CTA_CONFIG[meta.ctaType];
   const setupCta = CTA_CONFIG.setup;
 
   return (
     <footer className="mt-12 space-y-8 border-t border-gray-200 pt-8">
       {/* CTA */}
-      <div className="rounded-lg bg-blue-50 p-6">
+      <div className="rounded-lg bg-gradient-to-r from-red-700 to-red-900 p-6 text-white">
         <h3 className="mb-2 text-lg font-semibold">{cta.title}</h3>
-        <p className="mb-4 text-sm text-gray-600">{cta.description}</p>
+        <p className="mb-4 text-sm text-red-100">{cta.description}</p>
         <Link
           href={cta.href}
-          className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="inline-block rounded-lg border-2 border-white px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white hover:text-red-700"
         >
           {cta.buttonText}
         </Link>
@@ -31,7 +27,7 @@ export function ArticleFooter({
           <p className="mb-4 text-sm text-gray-600">{setupCta.description}</p>
           <Link
             href={setupCta.href}
-            className="inline-block rounded-lg border border-blue-600 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50"
+            className="inline-block rounded-lg border border-red-600 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
           >
             {setupCta.buttonText}
           </Link>
@@ -47,7 +43,7 @@ export function ArticleFooter({
               <li key={slug}>
                 <Link
                   href={`/${slug}`}
-                  className="text-blue-600 hover:underline"
+                  className="text-red-700 hover:underline"
                 >
                   {slug}
                 </Link>

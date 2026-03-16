@@ -66,18 +66,20 @@ export default function SecureSetupPage() {
               key={tier.name}
               className={`flex flex-col rounded-lg border p-6 ${
                 tier.highlighted
-                  ? "border-blue-500 ring-2 ring-blue-200"
+                  ? "border-red-600 ring-2 ring-red-600 md:scale-105"
                   : "border-gray-200"
               }`}
             >
               {tier.highlighted && (
-                <span className="mb-3 inline-block self-start rounded-full bg-blue-100 px-3 py-0.5 text-xs font-medium text-blue-700">
+                <span className="mb-3 inline-block self-start rounded-full bg-red-100 px-3 py-0.5 text-xs font-medium text-red-700">
                   最受歡迎
                 </span>
               )}
               <h2 className="mb-1 text-xl font-bold">{tier.name}</h2>
               <p className="mb-4 text-sm text-gray-600">{tier.description}</p>
-              <p className="mb-6 text-3xl font-bold">{tier.price}</p>
+              <p className="mb-6 text-4xl font-bold text-red-700">
+                {tier.price}
+              </p>
               <ul className="mb-8 flex-1 space-y-2">
                 {tier.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm">
@@ -92,7 +94,7 @@ export default function SecureSetupPage() {
                 rel="noopener noreferrer"
                 className={`block rounded-lg py-2.5 text-center text-sm font-medium ${
                   tier.highlighted
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    ? "bg-red-700 text-white hover:bg-red-800"
                     : "border border-gray-300 hover:bg-gray-50"
                 }`}
               >
@@ -119,7 +121,7 @@ export default function SecureSetupPage() {
             </a>
             <a
               href="mailto:yau@flowstudiohk.com?subject=OpenClaw 安全部署服務查詢"
-              className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
+              className="inline-block rounded-lg border border-neutral-300 px-6 py-3 font-medium text-neutral-700 hover:bg-neutral-50"
             >
               Email 預約
             </a>

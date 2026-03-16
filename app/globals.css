@@ -1,2 +1,18 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+}
+
+::selection {
+  background-color: #c53030;
+  color: white;
+}
+
+code,
+pre,
+kbd {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}

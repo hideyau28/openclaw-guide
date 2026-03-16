@@ -3,7 +3,7 @@ import { VersionBadge } from "./version-badge";
 
 export function ArticleHeader({ meta }: { readonly meta: ArticleMeta }) {
   return (
-    <header className="mb-8">
+    <header className="mb-8 border-b border-neutral-200 pb-6">
       <h1 className="mb-3 text-3xl font-bold leading-tight md:text-4xl">
         {meta.title}
       </h1>

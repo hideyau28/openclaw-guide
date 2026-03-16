@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Shield, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { NAV_ITEMS, SITE_NAME } from "@/lib/constants";
 
 export function Nav() {
@@ -11,8 +11,8 @@ export function Nav() {
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-          <Shield className="h-6 w-6 text-blue-600" />
+        <Link href="/" className="flex items-center gap-2 text-lg font-bold">
+          <span className="text-2xl">{"\uD83E\uDD9E"}</span>
           {SITE_NAME}
         </Link>
 
@@ -22,7 +22,7 @@ export function Nav() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="border-b-2 border-transparent pb-1 text-sm text-gray-600 transition-colors hover:border-red-700 hover:text-red-700"
               >
                 {item.label}
               </Link>
@@ -47,7 +47,7 @@ export function Nav() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="block py-2 text-sm text-gray-600 hover:text-gray-900"
+                className="block py-2 text-sm text-gray-600 transition-colors hover:text-red-700"
                 onClick={() => setOpen(false)}
               >
                 {item.label}

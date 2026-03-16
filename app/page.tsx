@@ -31,11 +31,17 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-4xl px-4">
       {/* Hero */}
-      <section className="py-16 text-center md:py-24">
-        <span className="mb-4 inline-block rounded-full bg-gray-100 px-4 py-1.5 text-sm">
+      <section
+        className="py-20 text-center sm:py-28"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 0%, rgba(185,28,28,0.08) 0%, transparent 70%)",
+        }}
+      >
+        <span className="mb-4 inline-block rounded-full bg-red-700 px-4 py-1.5 text-sm text-white">
           {"\uD83E\uDD9E"} GitHub 300K+ Stars 嘅開源 AI Agent
         </span>
-        <h1 className="mb-4 text-3xl font-bold leading-tight md:text-5xl">
+        <h1 className="mb-4 text-4xl font-bold leading-tight sm:text-5xl">
           OpenClaw 好用，但裝錯一步可以畀人 hack 晒。
         </h1>
         <p className="mx-auto mb-4 max-w-2xl text-lg text-gray-600">
@@ -47,19 +53,19 @@ export default function HomePage() {
         <div className="flex flex-wrap justify-center gap-3">
           <Link
             href="/security/essential-guide"
-            className="rounded-lg bg-red-600 px-6 py-3 font-medium text-white hover:bg-red-700"
+            className="rounded-lg bg-red-700 px-6 py-3 font-medium text-white shadow-sm hover:bg-red-800"
           >
             {"\uD83D\uDD12"} 安全設定指南
           </Link>
           <Link
             href="/install/macos"
-            className="rounded-lg border border-gray-300 px-6 py-3 font-medium hover:bg-gray-50"
+            className="rounded-lg border-2 border-neutral-300 px-6 py-3 font-medium transition-colors hover:border-red-700 hover:text-red-700"
           >
             {"\uD83D\uDD27"} 安裝教學
           </Link>
           <Link
             href="/troubleshoot/gateway"
-            className="rounded-lg border border-gray-300 px-6 py-3 font-medium hover:bg-gray-50"
+            className="rounded-lg border-2 border-neutral-300 px-6 py-3 font-medium transition-colors hover:border-red-700 hover:text-red-700"
           >
             {"\uD83D\uDD34"} 排錯中心
           </Link>
@@ -73,9 +79,11 @@ export default function HomePage() {
           {useCases.map((uc) => (
             <div
               key={uc.title}
-              className="rounded-lg border border-gray-200 p-6"
+              className="rounded-lg border border-gray-200 border-l-4 border-l-red-600 p-6 transition-all hover:border-red-200 hover:shadow-md"
             >
-              <span className="mb-3 block text-3xl">{uc.emoji}</span>
+              <span className="mb-3 inline-flex rounded-xl bg-red-50 p-3 text-3xl">
+                {uc.emoji}
+              </span>
               <h3 className="mb-1 font-semibold">{uc.title}</h3>
               <p className="text-sm text-gray-600">{uc.desc}</p>
             </div>
@@ -87,16 +95,16 @@ export default function HomePage() {
       {articles.length > 0 && (
         <section className="mb-16">
           <h2 className="mb-8 text-center text-2xl font-bold">最新文章</h2>
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {articles.map((a) => {
               const cat = CATEGORIES.find((c) => c.slug === a.category);
               return (
                 <Link
                   key={`${a.category}/${a.slug}`}
                   href={`/${a.category}/${a.slug}`}
-                  className="block rounded-lg border border-gray-200 p-5 hover:border-blue-300 hover:bg-blue-50/30"
+                  className="block rounded-lg border border-gray-200 p-5 transition-all hover:border-red-200 hover:shadow-md"
                 >
-                  <span className="mb-1 inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                  <span className="mb-1 inline-block rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
                     {cat?.name}
                   </span>
                   <h3 className="mb-1 font-semibold">{a.title}</h3>
@@ -112,16 +120,16 @@ export default function HomePage() {
       <DigitalProducts />
 
       {/* Service CTA */}
-      <section className="mb-16 rounded-lg bg-red-50 p-8 text-center">
+      <section className="mb-16 rounded-lg bg-gradient-to-r from-red-700 to-red-900 p-8 text-center text-white">
         <h2 className="mb-2 text-2xl font-bold">
           唔想 OpenClaw 變成 hacker 後門？
         </h2>
-        <p className="mb-6 text-gray-600">
+        <p className="mb-6 text-red-100">
           安全部署 · 零信任設定 · 實戰自動化 — 一次過幫你做好
         </p>
         <Link
           href="/services/secure-setup"
-          className="inline-block rounded-lg bg-red-600 px-6 py-3 font-medium text-white hover:bg-red-700"
+          className="inline-block rounded-lg border-2 border-white px-6 py-3 font-medium text-white transition-colors hover:bg-white hover:text-red-700"
         >
           了解服務方案
         </Link>
