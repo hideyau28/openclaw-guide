@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Shield, Smartphone, Wrench } from "lucide-react";
 import { CATEGORIES } from "@/lib/constants";
 import { getAllArticles } from "@/lib/mdx";
+import { DigitalProducts } from "@/components/home/digital-products";
 
 const useCases = [
   {
@@ -106,6 +107,9 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Digital Products */}
+      <DigitalProducts />
 
       {/* Service CTA */}
       <section className="mb-16 rounded-lg bg-red-50 p-8 text-center">

@@ -42,6 +42,12 @@ export function Footer() {
               {item.label}
             </Link>
           ))}
+          <Link
+            href="/resources/tools"
+            className="text-sm text-gray-500 hover:text-gray-700"
+          >
+            推薦工具
+          </Link>
         </nav>
 
         <p className="text-center text-xs text-gray-400">

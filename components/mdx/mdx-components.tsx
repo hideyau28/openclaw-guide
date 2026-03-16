@@ -1,9 +1,11 @@
 import type { MDXComponents } from "mdx/types";
 import Image from "next/image";
 import { Callout } from "./callout";
+import { AffiliateBanner } from "./affiliate-banner";
 
 export const mdxComponents: MDXComponents = {
   Callout,
+  AffiliateBanner,
   img: (props) => (
     <Image
       {...(props as { src: string; alt: string })}
@@ -12,12 +14,8 @@ export const mdxComponents: MDXComponents = {
       className="my-4 rounded-lg"
     />
   ),
-  h2: (props) => (
-    <h2 className="mt-10 mb-4 text-2xl font-bold" {...props} />
-  ),
-  h3: (props) => (
-    <h3 className="mt-8 mb-3 text-xl font-semibold" {...props} />
-  ),
+  h2: (props) => <h2 className="mt-10 mb-4 text-2xl font-bold" {...props} />,
+  h3: (props) => <h3 className="mt-8 mb-3 text-xl font-semibold" {...props} />,
   code: (props) => (
     <code
       className="rounded bg-gray-100 px-1.5 py-0.5 text-sm font-mono"
@@ -44,9 +42,10 @@ export const mdxComponents: MDXComponents = {
     </div>
   ),
   th: (props) => (
-    <th className="border border-gray-300 bg-gray-50 px-3 py-2 text-left font-semibold" {...props} />
+    <th
+      className="border border-gray-300 bg-gray-50 px-3 py-2 text-left font-semibold"
+      {...props}
+    />
   ),
-  td: (props) => (
-    <td className="border border-gray-300 px-3 py-2" {...props} />
-  ),
+  td: (props) => <td className="border border-gray-300 px-3 py-2" {...props} />,
 };
