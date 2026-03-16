@@ -1,0 +1,209 @@
+---
+title: "Gateway、Skills、Tools — OpenClaw 核心概念一次搞清楚"
+description: "搞混 Gateway、Skills 同 Tools？呢篇用最簡單嘅方式解釋 OpenClaw 嘅架構，新手必讀。"
+category: "start"
+slug: "concepts"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "7 分鐘"
+seoKeywords:
+  - "openclaw gateway"
+  - "openclaw skills tools 分別"
+  - "openclaw 架構"
+  - "openclaw 概念"
+schemaType: "Article"
+relatedArticles:
+  - "/skills/essential-setup"
+  - "/security/essential-guide"
+  - "/troubleshoot/gateway"
+ctaType: "setup"
+---
+
+## TL;DR
+
+| 概念 | 一句話解釋 |
+|------|-----------|
+| **Gateway** | OpenClaw 嘅大腦，管理所有連接同通訊 |
+| **Tools** | 權限開關，決定 Agent「可唔可以」做某件事 |
+| **Skills** | 教學手冊，教 Agent「點樣」做某件事 |
+| **Agents** | 獨立嘅 AI 人格，可以跑多個 |
+| **Memory** | 跨 session 嘅持久記憶 |
+| **soul.md** | 定義 Agent 嘅性格同行為規則 |
+| **Sessions** | 每段對話，歷史會影響 token 用量 |
+
+---
+
+## 架構圖：OpenClaw 嘅整體結構
+
+```
+你（Telegram / WhatsApp / TUI）
+              ↕
+          Gateway
+       （localhost:18789）
+              ↕
+    AI Model（GPT / Claude）
+              ↕
+   Tools + Skills + Memory
+              ↕
+    你嘅系統（檔案、Shell、瀏覽器）
+```
+
+所有嘅通訊都經過 Gateway，Gateway 係整個系統嘅核心。
+
+---
+
+## Gateway 係乜
+
+**Gateway 係 OpenClaw 嘅大腦。**
+
+技術上係一個本地 WebSocket server，bind 喺 `localhost:18789`。佢負責：
+- 管理同你（Telegram、WhatsApp、TUI）嘅連接
+- 認證請求（Token 驗證）
+- 管理 Sessions
+- 同 AI Model API 通訊
+- 協調 Tools 同 Skills 嘅執行
+
+**為什麼要 bind 係 localhost？**
+
+安全原因。Gateway 只應該接受你本機嘅連接，唔應該對外網開放。如果 Gateway bind 係 `0.0.0.0`（任何地址），任何人可以連入，即係 CVE-2026-25253（ClawJacked）漏洞嘅根源。詳細睇[安全避坑指南](/security/essential-guide)。
+
+如果 Gateway 出問題，睇[Gateway 排錯指南](/troubleshoot/gateway)。
+
+---
+
+## Tools 係乜（權限開關）
+
+**Tools 決定 OpenClaw「可唔可以」做某件事。**
+
+主要 Tools：
+
+| Tool | 功能 | 風險等級 |
+|------|------|----------|
+| `read` | 讀取本地檔案 | 中 |
+| `write` | 寫入 / 修改本地檔案 | 高 |
+| `exec` | 執行 shell 指令 | 極高 |
+| `browser` | 控制瀏覽器 | 高 |
+| `messaging` | 發送訊息（Telegram / WhatsApp） | 中 |
+
+**Tools 係明確嘅授權決定。** 每個 Tool 你都要主動開啟，唔係裝咗 OpenClaw 就自動全開。
+
+<Callout variant="warning">
+**`exec` Tool 係最危險嘅。** 開咗 `exec` 即係畀 Agent 執行任何 shell 指令嘅權限，包括刪除檔案、安裝軟件、修改系統設定。只喺你確定需要時才開，而且要配合好嘅 soul.md 規則限制行為。
+</Callout>
+
+---
+
+## Skills 係乜（教學手冊）
+
+**Skills 教 OpenClaw「點樣」做某件事。**
+
+Skill 係一份 Markdown 格式嘅指引，告訴 Agent 點樣同某個工具或服務互動。例如：
+- `obsidian` Skill — 教 Agent Obsidian vault 嘅結構同操作方式
+- `github` Skill — 教 Agent 怎樣讀 PR、建立 Issue、操作 repo
+- `telegram` Skill — 教 Agent 怎樣收發 Telegram 訊息
+
+Skills 有三種來源：
+- **內置**（~53 個）：開箱即用，唔使安裝
+- **官方**（~93 個）：經過審核
+- **社區**（1715+）：質素參差，有惡意風險
+
+詳細推薦同安全審查睇 [Skills 推薦指南](/skills/essential-setup)。
+
+---
+
+## Tools vs Skills：最多人搞混嘅關係
+
+**三個條件必須同時滿足，Skill 先能正常運作：**
+
+```
+條件一：Tool 權限開咗（exec / read / write）
+條件二：Skill 裝咗（教 Agent 點用）
+條件三：外部工具已安裝（例如 Obsidian app 本身）
+```
+
+**常見錯誤場景：**
+
+| 情況 | 結果 |
+|------|------|
+| 裝咗 `obsidian` Skill，但冇開 `write` Tool | Agent 識講點整理筆記，但寫唔到 |
+| 開咗 `exec` Tool，但冇裝任何 Skill | Agent 有權限，但唔知做乜 |
+| 裝咗 `github` Skill，但冇裝 git | Agent 識用 GitHub API，但本地 git 操作失效 |
+| 三個條件都滿足 | Skill 正常運作 |
+
+---
+
+## Agents 係乜
+
+**Agent 係一個獨立嘅 AI 人格。**
+
+你可以跑多個 Agent，每個有自己嘅：
+- 配置（使用哪個 model、哪些 Skills）
+- Memory（記住自己嘅任務同偏好）
+- soul.md（性格同行為規則）
+- Channel（例如某個 Telegram Bot 只連某個 Agent）
+
+典型多 Agent 設定範例：
+```
+main agent    — 日常助手，接收 Telegram 指令
+coder agent   — 代碼 review、GitHub 管理
+crawler agent — 定時抓網頁數據
+social agent  — 監控社交媒體提及
+```
+
+---
+
+## Memory 係乜
+
+**Memory 係跨 session 嘅持久記憶。**
+
+冇 Memory，每次新 session Agent 就係「新生兒」，完全唔記得你係邊個、你嘅偏好、上次做到邊。
+
+有 Memory，Agent 會：
+- 記住你嘅常用設定
+- 記住進行中嘅項目狀態
+- 記住你嘅語言偏好
+- 越用越了解你
+
+Memory 係透過 `memory` Skill 實現嘅，係新手必裝嘅 Skill 之一。
+
+---
+
+## soul.md 係乜
+
+**soul.md 係 Agent 嘅性格設定檔。**
+
+位置：`~/.openclaw/agents/<agent-name>/soul.md`
+
+冇 soul.md，Agent 會：
+- 用英文回覆（即使你用廣東話問）
+- 唔知你嘅偏好同工作背景
+- 可能做出你唔想要嘅行為（例如直接執行危險指令唔問你）
+
+soul.md 可以設定：語言、語氣、行為規則、禁止事項、你嘅背景資料。
+
+---
+
+## Sessions 係乜
+
+**Session 係每一段對話。**
+
+同一個 session 入面嘅所有對話歷史，每次呼叫 API 都會全部傳送。Session 越長，費用越高。
+
+**關鍵建議：每個獨立任務打 `/new` 開新 session。** 詳細費用影響睇 [Token 慳錢攻略](/troubleshoot/token-optimization)。
+
+---
+
+## FAQ
+
+**Q：Gateway 唔見咗點算？**
+
+跑 `openclaw gateway status` 睇狀態，跑 `openclaw gateway start` 重啟。如果仍有問題，睇[Gateway 排錯指南](/troubleshoot/gateway)，裡面有完整嘅排錯 flowchart。
+
+**Q：可唔可以唔開任何 Tool 只用 Skills？**
+
+可以，但大部分 Skills 都需要對應嘅 Tool 先能正常運作。唔開任何 Tool，Agent 基本上只能做純文字對話，唔能操作你嘅系統。
+
+**Q：多個 Agent 嘅費用係疊加嘅嗎？**
+
+係。每個 Agent 各自嘅呼叫都係獨立計費。5 個 Agent 同時跑，費用係 5 個 Agent 用量嘅總和。建議為高頻 Agent 選用便宜嘅模型（例如 Haiku 或 DeepSeek）控制成本。

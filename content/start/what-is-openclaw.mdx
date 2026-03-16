@@ -1,0 +1,138 @@
+---
+title: "OpenClaw 係乜？香港人 5 分鐘懶人包"
+description: "OpenClaw 係跑喺你自己電腦嘅開源 AI Agent — 唔係 chatbot，係真係幫你做嘢。5 分鐘了解佢係乜、做到乜、安唔安全。"
+category: "start"
+slug: "what-is-openclaw"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "5 分鐘"
+seoKeywords:
+  - "openclaw 是什麼"
+  - "openclaw 介紹"
+  - "openclaw 懶人包"
+  - "openclaw 中文"
+schemaType: "Article"
+relatedArticles:
+  - "/security/essential-guide"
+  - "/install/macos"
+  - "/compare/vs-chatgpt"
+ctaType: "setup"
+---
+
+## TL;DR
+
+**OpenClaw = 跑喺你電腦嘅 AI Agent。**
+
+唔係 chatbot。唔係問答工具。係一個可以幫你執行指令、管理檔案、發 Telegram 訊息、自動做任務嘅 AI 助手——跑喺你自己部機，數據唔離開你。
+
+---
+
+## OpenClaw 係乜？一句話解釋
+
+> **OpenClaw 係一個本地 AI Agent，可以讀寫你嘅檔案、執行 shell 指令、控制瀏覽器、發訊息，然後自動完成你指派嘅任務。**
+
+同 ChatGPT 最大嘅分別係：ChatGPT 係同你「傾偈」嘅 chatbot，OpenClaw 係真係幫你「做嘢」嘅 agent。你唔係問佢問題——你係叫佢去做事。
+
+詳細比較睇 [OpenClaw vs ChatGPT](/compare/vs-chatgpt)。
+
+---
+
+## OpenClaw 嘅歷史（點解你會見到唔同名字）
+
+你可能見過唔同名字，佢哋其實係同一個項目：
+
+| 時間 | 名稱 | 原因 |
+|------|------|------|
+| 2025 年 11 月 | **Clawdbot** | 最初版本，由 Peter Steinberger 開發 |
+| 2026 年 1 月 27 日 | **Moltbot** | Anthropic 商標問題，臨時改名 |
+| 2026 年 1 月 30 日 | **OpenClaw** | 正式定名，開源化 |
+| 2026 年 2 月 14 日 | OpenClaw（開源基金會） | Peter Steinberger 加入 OpenAI，項目轉交開源基金會管理 |
+
+**有幾火？**
+
+GitHub **300K+ Stars**，超越 React 同 Linux 嘅增長速度，係史上增長最快嘅非聚合類開源項目之一。
+
+---
+
+## OpenClaw 做到乜？6 個真實用途
+
+1. **WhatsApp 私人助理** — 喺 WhatsApp 用自然語言下指令，Agent 執行任務後回覆你
+2. **Email 每日早報** — 每日早上自動整理你嘅收件箱，Telegram 發摘要畀你
+3. **網頁價格監控** — 自動監控電商價格，低過目標價就即刻通知你
+4. **GitHub PR Review** — 新 PR 自動 review，生成意見同建議
+5. **智能家居控制** — 用 Telegram 話 Agent「幫我關客廳燈」，直接執行
+6. **定時自動任務** — 每日/每週自動執行你設定好嘅任何工作流程
+
+---
+
+## 安全風險：裝之前必須知
+
+<Callout variant="danger">
+**OpenClaw 唔係零風險。** 一個本地 AI Agent 有你部機嘅真實操作權限，以下三個已知風險你必須了解：
+
+- **CVE-2026-25253（ClawJacked，CVSS 8.8）：** 舊版 Gateway 可被惡意網站遠端接管。已有 13.5 萬實例暴露喺公網。**立刻更新至 v2026.2.26+。**
+- **ClawHub 惡意 Skills：** 1800+ Skills 入面有 820+ 被 Koi Security 標記為惡意（約 8%），可以執行任意代碼。
+- **Gateway Token 外洩：** Token 係你 Agent 系統嘅鎖匙，外洩即係完全失控。
+
+**裝之前一定要睇：[安全避坑指南](/security/essential-guide)**
+</Callout>
+
+---
+
+## 使唔使錢？
+
+**OpenClaw 本身：100% 免費開源。**
+
+費用嚟自你用嘅 LLM API：
+
+| 用法 | 估計月費 |
+|------|----------|
+| 本地模型（Ollama） | $0（需要 Apple Silicon） |
+| 輕度用量（DeepSeek） | $5–10/月 |
+| 正常用量（Sonnet / GPT） | $20–50/月 |
+| 重度多 Agent + 長 session | $50–100+/月 |
+
+最大嘅隱藏陷阱係 session history 累積——越長嘅對話每次用越多 token。詳細慳錢方法睇 [Token 慳錢攻略](/troubleshoot/token-optimization)。
+
+---
+
+## 適唔適合你？
+
+**適合你，如果你：**
+- 有基本 Terminal 使用能力（識得裝 npm package）
+- 想要真正嘅自動化，唔係淨係問答
+- 願意花幾個小時設定，換取長期嘅效率提升
+- 在乎數據私隱，唔想對話存喺雲端
+
+**唔適合你，如果你：**
+- 完全唔識 Terminal 又唔想學
+- 只係想有個 AI 可以傾偈問問題（用 ChatGPT 就夠）
+- 唔想花時間維護同更新
+- 唔願意承擔本地 Agent 嘅安全責任
+
+---
+
+## 下一步
+
+根據你嘅需求選擇：
+
+- **想裝試試** → [macOS 安裝教學](/install/macos)（約 20–30 分鐘）
+- **想先了解安全風險** → [安全避坑指南](/security/essential-guide)
+- **想同 ChatGPT 詳細比較** → [OpenClaw vs ChatGPT](/compare/vs-chatgpt)
+
+---
+
+## FAQ
+
+**Q：OpenClaw 跑喺邊度？需唔需要 internet？**
+
+OpenClaw 軟件本身跑喺你自己部機（本地）。但係每次 Agent 需要 AI 回應時，都要連去你設定嘅 LLM provider（例如 OpenAI 或 Anthropic）。如果你用本地模型（Ollama），就可以完全離線運行。
+
+**Q：OpenClaw 支持 Windows 嗎？**
+
+支持 Mac、Windows 同 Linux。但目前社區最多教學係 macOS 版本，Windows 版本偶爾有額外步驟。本站嘅[安裝教學](/install/macos)係 macOS 版本。
+
+**Q：OpenClaw 同 Cursor / GitHub Copilot 有乜分別？**
+
+Cursor 同 Copilot 係代碼編輯器嘅 AI 助手，聚焦係寫代碼。OpenClaw 係通用 AI Agent，唔係只係代碼——佢可以發訊息、管理檔案、控制瀏覽器、做任何可以用電腦做嘅事。當然，OpenClaw 可以有一個 Coder Agent 幫你做代碼工作，但佢係更廣泛嘅自動化平台。

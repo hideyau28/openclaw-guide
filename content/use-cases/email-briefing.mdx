@@ -1,0 +1,277 @@
+---
+title: "用 OpenClaw 自動整理 Email + 每日早報教學"
+description: "每日早上自動收到 AI 整理好嘅 Email 摘要同當日 schedule。設定一次，永遠唔使手動整理收件箱。"
+category: "use-cases"
+slug: "email-briefing"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "10 分鐘"
+seoKeywords:
+  - "openclaw email"
+  - "openclaw 自動化 email"
+  - "openclaw 每日早報"
+  - "ai email 摘要"
+schemaType: "HowTo"
+relatedArticles:
+  - "/install/macos"
+  - "/skills/essential-setup"
+  - "/security/essential-guide"
+ctaType: "setup"
+---
+
+## TL;DR
+
+**設定目標：** 每日早上 7 點，OpenClaw 自動讀你嘅 Gmail，按優先級分類（Urgent / Important / FYI），生成繁中摘要，Telegram 發畀你。
+
+**需要嘅時間：** 30–45 分鐘設定，之後永久自動運行。
+
+**月費估計：** $5–15/月（視乎 email 量同模型選擇）。
+
+---
+
+## 你將會得到乜？
+
+每日早上 7 點，你嘅 Telegram 會收到類似呢樣嘢：
+
+```
+📬 每日 Email 早報 — 2026年3月15日 07:00
+
+🔴 Urgent（需要今日處理）
+• [Client A] 合約修改 — 對方要求週五前確認
+• [Bank] 帳戶驗證 — 需要 24 小時內完成
+
+🟡 Important（今日留意）
+• [GitHub] PR Review 請求 — 等你 approve（3 條）
+• [Newsletter] Product Hunt 週報
+
+📄 FYI（可以之後睇）
+• 7 封行銷 email
+• 3 封通知 email
+
+今日 Schedule：
+• 10:00 Team standup（Google Meet）
+• 15:00 Client call
+```
+
+設定一次，每日自動運行，唔需要你動手。
+
+---
+
+## 前置條件
+
+在開始之前，確認你已經：
+
+1. [安裝好 OpenClaw](/install/macos)（Gateway 運行正常）
+2. [設定好 Telegram channel](/install/macos)（用嚟接收早報）
+3. [設定好 LLM API Key](/install/api-keys)
+4. 有 Gmail 帳號（或支持 IMAP 嘅 email）
+
+---
+
+## 需要嘅 Skills 同 Tools
+
+**Skills（需要安裝）：**
+
+```bash
+openclaw skill install gmail    # 或 email（IMAP 版本）
+openclaw skill install cron     # 定時任務（內置，唔使安裝）
+openclaw skill install memory   # 記住你嘅分類偏好（內置）
+openclaw skill install telegram # 發送早報（內置）
+```
+
+**Tools（需要開啟）：**
+
+```bash
+# 確認以下 Tools 已開啟
+openclaw config get tools
+# 需要：read、exec、messaging
+```
+
+---
+
+## Step-by-Step 設定教學
+
+### 第 1 步：安裝 Gmail Skill
+
+```bash
+openclaw skill install gmail
+```
+
+安裝後，openclaw 會引導你做 Gmail 認證。
+
+### 第 2 步：連接 Gmail
+
+有兩種方式：
+
+**方法 A：Gmail OAuth（推薦，只有讀取權限）**
+
+```bash
+openclaw gmail auth --scope read-only
+# 彈出瀏覽器，用 Google 帳號授權
+```
+
+選 read-only 係關鍵——只畀讀取權限，唔畀 OpenClaw 代你發 email。
+
+**方法 B：IMAP + App Password**
+
+1. 去 Google 帳號 → 安全性 → 兩步驟驗證 → 應用程式密碼
+2. 生成一個 App Password（16 位）
+3. 設定 OpenClaw：
+
+```bash
+openclaw config set gmail.host imap.gmail.com
+openclaw config set gmail.port 993
+openclaw config set gmail.user your@gmail.com
+openclaw config set gmail.password "your-app-password"
+```
+
+### 第 3 步：寫 Prompt Template
+
+建立一個 prompt file，定義 AI 嘅分類標準：
+
+```bash
+mkdir -p ~/.openclaw/prompts
+nano ~/.openclaw/prompts/email-briefing.md
+```
+
+貼入以下內容（可以按你嘅需求修改）：
+
+```markdown
+讀取我嘅 Gmail 收件箱，整理過去 24 小時嘅新 email。
+
+分類標準：
+- 🔴 Urgent：需要今日回覆或處理（deadline 在 48 小時內）
+- 🟡 Important：需要今日留意，但唔急
+- 📄 FYI：通知類、行銷類、可以之後睇
+
+輸出格式：
+- 繁體中文（香港用語）
+- 每類列出 email，每條一句話摘要
+- Urgent 類要說明 deadline 或原因
+- 最後附上今日 Google Calendar 事項
+
+唔好超過 500 字。
+```
+
+### 第 4 步：測試一次
+
+喺 TUI 或 Telegram 手動觸發：
+
+```
+請按 ~/.openclaw/prompts/email-briefing.md 嘅指引，執行今日嘅 email 早報。
+```
+
+確認輸出格式係你想要嘅，調整 prompt 直到滿意。
+
+### 第 5 步：設定 Cron Job
+
+```bash
+# 每日早上 7 點執行，用新 session
+openclaw cron add \
+  --schedule "0 7 * * *" \
+  --agent main \
+  --prompt-file ~/.openclaw/prompts/email-briefing.md \
+  --new-session \
+  --output telegram
+
+# 確認 cron 已設定
+openclaw cron list
+```
+
+### 第 6 步：等明日 7 點確認
+
+第一次自動執行後，睇 Telegram 嘅輸出係咪符合預期。頭幾日可能需要微調 prompt 裡面嘅分類標準。
+
+```bash
+# 如果需要調整，修改 prompt file 即刻生效（唔使重設 cron）
+nano ~/.openclaw/prompts/email-briefing.md
+```
+
+---
+
+## 安全隱患（必須了解）
+
+<Callout variant="danger">
+**Email 讀取 = 你嘅所有郵件內容畀 AI 睇到。**
+
+請認真考慮以下風險：
+
+**風險一：LLM Provider 可見性**
+你嘅 email 內容會發送去你設定嘅 LLM provider（OpenAI / Anthropic）。如果你嘅 email 有商業機密、個人私隱、法律文件，你需要接受呢個風險或改用本地模型（Ollama）。
+
+**風險二：API Key 外洩**
+如果你嘅 OpenClaw API Key 外洩，其他人可以用同樣嘅 skill 讀你嘅 email。定期喺[安全避坑指南](/security/essential-guide)提及嘅步驟做安全審查。
+
+**風險三：惡意 Email 攻擊**
+有人可以發一封特製嘅 email，裡面包含 prompt injection 指令，嘗試操控你嘅 Agent 做你唔想要嘅事。建議：
+- 唔好畀 Agent `write` 或 `exec` 權限喺 email 處理任務度
+- 使用 read-only Gmail scope
+</Callout>
+
+**安全設定建議：**
+
+```bash
+# 只用 read-only OAuth scope（唔畀發 email 權限）
+openclaw gmail auth --scope read-only
+
+# 唔好同時開 exec Tool 同 email Skill
+# 冇必要讓 AI 可以執行指令同讀你 email
+```
+
+---
+
+## 擴展：加入 Google Calendar
+
+如果你想早報同時包含今日行程：
+
+```bash
+openclaw skill install google-calendar
+```
+
+喺 prompt template 加入：
+
+```markdown
+同時讀取今日嘅 Google Calendar 事項，附在早報最後。
+格式：HH:MM 事項名稱（時長）
+```
+
+---
+
+## 月費估計
+
+| 設定 | 月費估計 |
+|------|----------|
+| Gmail（每日 50 封）+ Claude Haiku | ~$3–5/月 |
+| Gmail（每日 100 封）+ Claude Sonnet | ~$8–15/月 |
+| Gmail + Calendar + Haiku | ~$5–8/月 |
+| 用本地 Ollama | $0（需要 Apple Silicon） |
+
+每次早報通常消耗 2,000–10,000 tokens，視乎 email 量同 model 而定。
+
+---
+
+## FAQ
+
+**Q：支唔支持 Outlook / 非 Gmail？**
+
+支持。用 `email` Skill（IMAP 版本）代替 `gmail` Skill，Outlook 嘅 IMAP 設定係 `outlook.office365.com:993`。需要喺 Microsoft 帳號設定開啟 IMAP 存取，同生成 App Password。
+
+**Q：可唔可以自動回覆 email？**
+
+技術上可以，但**極度唔建議**。AI 發出去嘅 email 係真實嘅，發咗就發咗，唔能撤回。AI 誤解一封 email 然後自動回覆一個不當內容，後果可以好嚴重。如果你真係想試，建議只喺測試帳號用，而且加入強制確認步驟（Agent 草擬後先問你批准）。
+
+**Q：Email 內容會唔會上傳去雲端？**
+
+視乎你用嘅 LLM provider。用 Anthropic / OpenAI = email 內容發送去佢哋嘅 server（受各自嘅私隱政策管理）。用本地 Ollama = email 完全唔離開你嘅電腦。如果隱私係你嘅首要考量，用 Ollama 係唯一完全本地嘅方案，但模型能力會弱一些。
+
+**Q：可唔可以只處理某幾個寄件人嘅 email？**
+
+可以，喺 prompt template 加入過濾條件：
+
+```markdown
+只處理以下寄件人嘅 email：
+- client@example.com
+- boss@company.com
+忽略所有行銷 email（Unsubscribe 連結嘅一律略過）。
+```

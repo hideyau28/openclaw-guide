@@ -1,0 +1,148 @@
+---
+title: "OpenClaw 使唔使錢？費用完整拆解（2026 年 3 月版）"
+description: "OpenClaw 本身免費，但 API 費用可以由 $0 到 $100/月。呢篇幫你搞清楚到底要畀幾多錢。"
+category: "start"
+slug: "pricing"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "6 分鐘"
+seoKeywords:
+  - "openclaw 費用"
+  - "openclaw 免費"
+  - "openclaw api 費用"
+  - "openclaw 幾錢"
+schemaType: "Article"
+relatedArticles:
+  - "/troubleshoot/token-optimization"
+  - "/install/api-keys"
+  - "/compare/vs-chatgpt"
+ctaType: "setup"
+---
+
+## TL;DR
+
+- **OpenClaw 軟件：免費開源**
+- **LLM API 費用：$0–$100+/月（視乎用量同模型）**
+- **隱藏成本：長 session 累積 token，係最多人踩嘅坑**
+
+---
+
+## OpenClaw 費用嘅三大構成
+
+### 構成一：LLM API Token 費（最主要）
+
+OpenClaw 本身冇費用，但每次 Agent 呼叫 AI 都有 API 費用。費用取決於：
+- 你選用嘅 LLM provider 同模型
+- 每次呼叫傳送嘅 token 數量
+- 你嘅 Agent 使用頻率
+
+### 構成二：硬件 / 電費（本地模型用戶）
+
+如果你跑本地模型（Ollama），API 費用係 $0，但你嘅機需要持續運行，有電費成本。Mac Mini M2 連續開機一個月電費約 HK$30–50。
+
+### 構成三：你嘅時間
+
+設定 OpenClaw 需要幾個小時，維護（更新、排錯、調整 config）每月需要少量時間。呢個係隱性成本，視乎你嘅技術能力。
+
+---
+
+## LLM Provider 定價比較表（2026 年 3 月）
+
+| Provider / 模型 | Input（/1M tokens） | Output（/1M tokens） | 免費額度 |
+|-----------------|---------------------|----------------------|----------|
+| Claude Opus 4.6 | $15.00 | $75.00 | 冇 |
+| Claude Sonnet 4.6 | $3.00 | $15.00 | 冇 |
+| Claude Haiku 4.5 | $0.25 | $1.25 | 冇 |
+| GPT-5.4 | ~$10.00 | ~$30.00 | 冇 |
+| GPT-4o mini | $0.15 | $0.60 | 冇 |
+| DeepSeek V3 | $0.27 | $1.10 | 少量 |
+| Gemini 2.5 Flash | $0.15 | $0.60 | 有（rpm 限制） |
+| OpenAI Codex OAuth | 免費額度 | 免費額度 | 有（限量） |
+| Ollama（本地） | $0 | $0 | 完全免費 |
+
+*價格為參考，以各 provider 官方定價為準。*
+
+---
+
+## 四種預算方案
+
+### 零成本方案：本地 Ollama
+
+**月費：$0（只有電費）**
+
+- 用 Ollama 跑本地模型（Llama 3.2、Mistral 等）
+- 完全免費、完全私隱
+- 需要：Apple Silicon Mac（M1/M2/M3）或有獨立 GPU 嘅 PC
+- 缺點：模型能力弱過雲端頂級模型，處理複雜任務可能力不從心
+
+### 低成本方案：$5–10/月
+
+- 主要用 DeepSeek V3 或 Gemini 2.5 Flash
+- 短 session，每個任務開新 session
+- 適合：輕度用量、主要做簡單自動化任務
+
+### 正常方案：$20–50/月
+
+- 主要模型：Claude Sonnet 4.6 或 GPT-5.4
+- 多個 Agent，每日定時任務
+- 偶爾長 session 做複雜工作
+- 適合：每日使用、有幾個自動化 workflow 嘅用戶
+
+### 重度方案：$50–100+/月
+
+- 多個 Agent 並行
+- 長 session + 高頻 Cron Job
+- 部分任務用 Opus 或 GPT-5.4
+- 適合：把 OpenClaw 作為主要工作工具嘅用戶
+
+---
+
+## 最大隱藏陷阱：Session History 累積
+
+<Callout variant="warning">
+**呢個係最多人踩嘅坑，不看不知有幾貴。**
+
+同一個 session 嘅所有對話歷史，每次呼叫 API 都會全部傳送。Session 越長，每次呼叫費用越高。MIT Technology Review 報導過有用戶用 Claude Opus 4.5 兩個鐘燒咗 $100 美金——唔係 Bug，係 session 太長。
+
+**解決方法：** 每個獨立任務開新 session（`/new`）。詳細慳錢方法睇 [Token 慳錢攻略](/troubleshoot/token-optimization)。
+</Callout>
+
+---
+
+## 同 ChatGPT Plus 比較
+
+| | OpenClaw | ChatGPT Plus |
+|---|---|---|
+| 月費 | $0（軟件）+ API 費 | $20 固定 |
+| API 用量 | 按用量計 | 無限（有 rate limit） |
+| 能力 | Agent（真係做嘢） | Chatbot（傾偈） |
+| 隱私 | 數據留本地 | 對話存 OpenAI server |
+
+如果你只需要一個可以傾偈嘅 AI，ChatGPT Plus $20/月 更划算。如果你需要 AI 幫你做自動化任務，OpenClaw 嘅價值無可比擬。詳細比較睇 [OpenClaw vs ChatGPT](/compare/vs-chatgpt)。
+
+---
+
+## 控制費用嘅三個習慣
+
+1. **開新 session**：每個獨立任務打 `/new`，唔好讓 history 無限累積
+2. **按任務揀模型**：簡單任務唔需要 Opus，Haiku 已夠用
+3. **設用量上限**：喺 API provider dashboard 設 hard limit，防意外
+
+詳細方法睇 [Token 慳錢攻略](/troubleshoot/token-optimization)。
+
+---
+
+## FAQ
+
+**Q：如果只用免費額度可唔可以試用 OpenClaw？**
+
+可以。OpenAI Codex OAuth 有免費額度（唔需要信用卡），Google Gemini 有免費 tier，DeepSeek 新帳號有少量免費額度。用呢幾個組合試玩 OpenClaw 完全唔使畀錢，只係用量有限制。詳細申請方法睇 [API Key 設定指南](/install/api-keys)。
+
+**Q：費用係按月固定嗎？**
+
+唔係，API 費用係按實際使用量計算。你用多少付多少，冇最低消費。月底費用視乎你嘅 session 長度、呼叫頻率、選用模型而定。建議喺 provider dashboard 設月度上限防止意外。
+
+**Q：有冇方法估算自己嘅月費？**
+
+TUI 底部顯示嘅 token 計數可以幫你估算單次 session 嘅消耗。一個典型嘅短 session（10–20 次對話）用 Claude Sonnet 大概 $0.05–0.20。如果你每日有 10 個短 session，月費大概 $15–60。用量越高、session 越長，費用越高。
