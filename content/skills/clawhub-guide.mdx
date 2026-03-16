@@ -1,0 +1,240 @@
+---
+title: "ClawHub 完整指南：點搵、點裝、點審查 OpenClaw Skills"
+description: "ClawHub 有 13,000+ Skills 但曾有 20%+ 被標記可疑。呢篇教你點喺 ClawHub 搵到安全又實用嘅 Skills。"
+category: "skills"
+slug: "clawhub-guide"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "10 分鐘"
+seoKeywords:
+  - "clawhub"
+  - "openclaw skills 安裝"
+  - "clawhub skills"
+  - "openclaw clawhub"
+schemaType: "HowTo"
+relatedArticles:
+  - "/skills/essential-setup"
+  - "/security/essential-guide"
+  - "/install/macos"
+ctaType: "setup"
+---
+
+## TL;DR
+
+**ClawHub = OpenClaw 嘅公開 Skills 市場。** 但係 13,000+ Skills 入面有唔少惡意嘅。安裝任何社區 Skill 之前，跟住呢篇嘅 5 步安全審查做。
+
+---
+
+## ClawHub 係乜？
+
+ClawHub 係 OpenClaw 嘅公開 Skills 市場，類似 npm 之於 Node.js，但裝嘅係 AI Agent 嘅「能力擴充」而唔係代碼庫。
+
+**規模（2026 年 2 月數據）：**
+- 上架 Skills 數：13,729 個
+- ClawHavoc 清理後剩餘：約 10,000+
+- 官方審核 Skills：~93 個
+- 內置 Skills：53 個
+
+---
+
+## ClawHavoc 事件：你需要知道嘅背景
+
+2026 年初，安全研究員發現 ClawHub 上有 **800–900 個惡意 Skills** 偽裝成熱門工具（如 obsidian 嘅複製品、telegram 嘅 fork），植入了 AMOS Stealer（macOS 惡意軟件，可竊取瀏覽器 cookie、錢包私鑰、API Key）。
+
+事件後，ClawHub 同 VirusTotal 合作，移除了 2,400+ 可疑 Skills，同時引入強制 Security Scan。但唔係所有 Skill 都有 scan，新上架嘅 Skill 仍然存在風險。
+
+<Callout variant="danger">
+**未經 Security Scan 嘅社區 Skill，安裝前必須自己做安全審查。** 呢唔係危言聳聽——ClawHavoc 事件證明有真實攻擊者係用 ClawHub 散布惡意軟件嘅。
+</Callout>
+
+---
+
+## ClawHub Skills 嘅三層優先級
+
+| 層級 | 數量 | 風險 | 建議 |
+|------|------|------|------|
+| **Bundled（內置）** | 53 個 | 🟢 極低 | 放心用 |
+| **官方（經審核）** | ~93 個 | 🟢 低 | 放心用 |
+| **社區** | 10,000+ | 🟡–🔴 不確定 | 裝前做 5 步審查 |
+
+---
+
+## 點搵 Skills
+
+### 網頁搜尋（最直覺）
+
+去 `clawhub.com`，用搜尋欄搵關鍵字。可以按下載量、評分、最新上架排序。
+
+### CLI 搜尋
+
+```bash
+# 關鍵字搜尋
+openclaw skill search obsidian
+
+# 語義搜尋（ClawHub 用 OpenAI embeddings 做 vector search）
+openclaw skill search "幫我管理 Obsidian 知識庫嘅工具"
+
+# 只顯示官方 Skills
+openclaw skill search github --verified-only
+
+# 睇 Skill 詳情
+openclaw skill inspect <skill-slug>
+```
+
+### ClawHub Top 10 下載量排行（2026 年 2 月）
+
+| 排名 | Skill | 下載量 | 類型 |
+|------|-------|--------|------|
+| 1 | Capability Evolver | 35K | 🟡 社區 |
+| 2 | Wacli（WhatsApp） | 16K | 🟡 社區 |
+| 3 | ByteRover | 16K | 🟡 社區 |
+| 4 | Self-Improving Agent | 15K | 🟡 社區 |
+| 5 | ATXP | 14K | 🟡 社區 |
+| 6 | Gog（Google Workspace） | 14K | 🟡 社區 |
+| 7 | Agent Browser | 11K | 🟡 社區 |
+| 8 | Summarize | 10K | 🟡 社區 |
+| 9 | GitHub | 10K | 🟢 官方 |
+| 10 | Sonoscli | 10K | 🟡 社區 |
+
+---
+
+## 安裝、更新、移除指令
+
+```bash
+# 安裝
+openclaw skill install <skill-slug>
+# 或
+clawhub install <skill-slug>
+
+# 更新單個 Skill
+openclaw skill update <skill-slug>
+
+# 更新所有已安裝 Skills（謹慎使用）
+clawhub update --all
+
+# 移除
+openclaw skill uninstall <skill-slug>
+# 或
+clawhub uninstall <skill-slug>
+
+# 睇已安裝清單
+openclaw skill list
+
+# 睇 Skill 嘅完整詳情（包括 permissions）
+openclaw skill inspect <skill-slug>
+```
+
+---
+
+## 安全審查 5 步 Checklist
+
+裝任何**社區 Skill** 之前，完成以下 5 步：
+
+### 第 1 步：Check VirusTotal Report
+
+喺 ClawHub 頁面搵「VirusTotal Scan」一欄，點入去睇結果。無 VirusTotal 記錄 = 紅旗。
+
+### 第 2 步：Check OpenClaw Security Scan
+
+```bash
+openclaw skill inspect <skill-slug>
+# 睇 "security_scan" 欄位
+```
+
+| 結果 | 意思 | 行動 |
+|------|------|------|
+| `Benign (HIGH CONFIDENCE)` | 相對安全 | 可以安裝 |
+| `Benign (LOW CONFIDENCE)` | 有少量不確定性 | 睇源碼先 |
+| `Suspicious` | 有可疑行為 | 唔建議安裝 |
+| `Malicious` | 已確認惡意 | 絕對唔裝 |
+| 無結果 | 未掃描 | 手動審查 |
+
+### 第 3 步：Check 作者 Profile
+
+喺 ClawHub 點入作者頁面：
+
+| 訊號 | 說明 |
+|------|------|
+| 多個 Skills + 高 star + 有評論 | 較可信 |
+| 只有一個 Skill + 零評論 | 🟡 注意 |
+| 新帳號 + 只有一個 Skill | 🔴 可疑 |
+| 帳號建立時間 < 30 日 | 🔴 可疑 |
+
+### 第 4 步：Check Permission 要求
+
+```bash
+openclaw skill inspect <skill-slug>
+# 睇 "required_permissions" 欄位
+```
+
+**合理嘅 permission 例子：**
+- `obsidian` Skill 需要 `read` + `write` → 合理
+- `gmail` Skill 需要 `messaging` → 合理
+
+**紅旗：**
+- 天氣查詢 Skill 要求 `exec` → 不合理
+- 筆記 Skill 要求讀 `~/.ssh` 或 `~/.aws` → 極度可疑
+
+### 第 5 步：Review Source Code
+
+所有 Skill 都係 SKILL.md 格式，係純文字嘅 Markdown：
+
+```bash
+# 喺 CLI 睇 SKILL.md 源碼
+openclaw skill source <skill-slug>
+```
+
+留意：
+- 有冇隱藏嘅 `exec` 指令
+- 有冇要求訪問可疑 URL
+- 有冇 obfuscated 嘅內容（混淆嘅指令係紅旗）
+
+---
+
+## 安全設定
+
+```bash
+# 只允許安裝官方認證 Skills
+openclaw config set skills.verified_only true
+
+# 關閉自動更新（防止 Skill 更新版本加入惡意代碼）
+openclaw config set skills.auto_update false
+```
+
+詳細安全設定睇[Skills 推薦 + 安全審查指南](/skills/essential-setup)。
+
+---
+
+## Typosquatting 警告
+
+攻擊者常用接近熱門 Skill 名稱嘅名字：
+
+| 真正 Skill | 可疑假冒 |
+|-----------|---------|
+| `obsidian` | `obsidain`、`obsidian-pro` |
+| `github` | `g1thub`、`github-enhanced` |
+| `telegram` | `telegramm`、`telegram-bot-pro` |
+
+安裝時仔細確認 slug 嘅拼寫，同作者係咪係原本嘅開發者。
+
+---
+
+## FAQ
+
+**Q：ClawHub 同 npm 嘅安全差距有幾大？**
+
+差距相當大。npm 有 package provenance、2FA 要求、自動 CVE 掃描等機制。ClawHub 嘅安全審查機制相對新，仍然係由社區自律為主。呢個係點解自己做 5 步審查係必要嘅——唔可以完全依賴平台嘅審查。
+
+**Q：Skill 更新有冇安全風險？**
+
+有。一個原本安全嘅 Skill，作者可以喺更新版本加入惡意代碼。建議 `skills.auto_update false`，每次更新前手動 `openclaw skill inspect` 確認新版本冇問題。
+
+**Q：我裝咗嘅 Skill 之後發現係惡意嘅，點辦？**
+
+1. 立刻 `openclaw skill uninstall <skill-slug>`
+2. 重置你嘅 API Key（去各 provider 撤銷並重新生成）
+3. 檢查系統有冇異常活動
+4. 向 ClawHub 舉報呢個 Skill
+
+詳細安全響應流程睇[安全避坑指南](/security/essential-guide)。

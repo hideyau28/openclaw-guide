@@ -1,0 +1,246 @@
+---
+title: "OpenClaw + Obsidian 知識管理完整教學"
+description: "用 OpenClaw 自動整理你嘅 Obsidian 筆記 — AI 幫你分類、標籤、總結、搵到相關筆記。"
+category: "use-cases"
+slug: "obsidian-knowledge"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "9 分鐘"
+seoKeywords:
+  - "openclaw obsidian"
+  - "openclaw 知識管理"
+  - "ai obsidian"
+  - "openclaw 筆記"
+schemaType: "HowTo"
+relatedArticles:
+  - "/skills/essential-setup"
+  - "/use-cases/cron-automation"
+  - "/security/essential-guide"
+ctaType: "setup"
+---
+
+## TL;DR
+
+**目標：** OpenClaw 自動整理你嘅 Obsidian vault：
+- 每日自動總結新增筆記
+- 自動加 tag 同分類
+- 搵相關筆記並建議 backlink
+- Meeting notes 轉 action items
+- 定期標記過時內容
+
+**前置條件：** 已安裝 Obsidian，有一個 vault（至少有幾十個筆記效果最好）
+
+---
+
+## 需要嘅 Skills 同 Tools
+
+| Skill | 用途 | 安裝指令 | 安全評級 |
+|-------|------|----------|----------|
+| `obsidian` | 讀寫 Obsidian vault | `openclaw skill install obsidian` | 🟢 安全（官方） |
+| `memory` | 記住 vault 結構同你嘅偏好 | 內置，無需安裝 | 🟢 安全 |
+| `cron` | 定時自動整理 | 內置，無需安裝 | 🟢 安全 |
+
+**需要開啟嘅 Tools：** `read`（必須）、`write`（如需自動修改筆記）
+
+<Callout variant="warning">
+**強烈建議：先只開 `read`，確認 AI 行為符合預期後，再開 `write`。** 有了 `write` 權限，AI 可以修改你所有嘅筆記，錯誤嘅修改難以撤銷（除非你有 git backup）。
+</Callout>
+
+---
+
+## 設定步驟
+
+### 第 1 步：安裝 Obsidian Skill
+
+```bash
+# 安裝
+openclaw skill install obsidian
+
+# 設定 vault 路徑
+openclaw config set obsidian.vault_path "/Users/你嘅名字/Documents/Obsidian/你嘅Vault"
+
+# 確認可以讀取
+openclaw skill test obsidian
+```
+
+### 第 2 步：設定 Vault Git Backup（強烈建議）
+
+喺開 `write` Tool 之前，先設定好 git backup：
+
+```bash
+cd ~/Documents/Obsidian/你嘅Vault
+git init
+git add .
+git commit -m "backup before OpenClaw write access"
+
+# 每日自動 commit（可選）
+openclaw cron add \
+  --schedule "0 22 * * *" \
+  --agent main \
+  --command "執行 git add -A && git commit -m 'daily backup $(date +%Y-%m-%d)' 喺 ~/Documents/Obsidian/你嘅Vault" \
+  --new-session
+```
+
+### 第 3 步：先用 Read-Only 模式測試
+
+```bash
+# 只開 read，唔開 write
+openclaw config set tools.read true
+openclaw config set tools.write false
+
+# 測試：讓 AI 分析你嘅 vault
+# 喺 TUI 或 Telegram 打：
+# 「分析我嘅 Obsidian vault，告訴我有幾多個筆記、主要嘅分類、同有哪些可能需要整理嘅地方」
+```
+
+確認 AI 嘅分析符合你對 vault 嘅理解後，再開 `write`。
+
+### 第 4 步：開啟 Write 權限
+
+```bash
+openclaw config set tools.write true
+```
+
+---
+
+## 5 個自動化場景
+
+### 場景一：每日筆記總結
+
+```bash
+cat > ~/.openclaw/prompts/obsidian-daily-summary.md << 'EOF'
+讀取 Obsidian vault 入面今日新增或修改嘅筆記（修改時間係今日）。
+
+生成一份每日總結：
+1. 今日新增嘅筆記：[標題列表]
+2. 今日修改嘅筆記：[標題列表]
+3. 今日最重要嘅 3 個 insights（從筆記內容提取）
+
+將總結寫入：Daily Notes/Summary-{{DATE}}.md
+並透過 Telegram 發送摘要畀我。
+EOF
+
+openclaw cron add \
+  --schedule "0 22 * * *" \
+  --agent main \
+  --prompt-file ~/.openclaw/prompts/obsidian-daily-summary.md \
+  --new-session
+```
+
+### 場景二：自動加 Tag 同分類
+
+```bash
+# 手動觸發（用喺 TUI 或 Telegram）
+openclaw run --prompt "
+讀取 Obsidian vault 入面冇 tag 嘅筆記（frontmatter 裡面 tags 係空嘅或冇 tags 欄位）。
+
+對每個筆記：
+1. 讀取內容
+2. 根據主題建議 2–4 個 tag（用已有嘅 tag 系統，唔要建立太多新 tag）
+3. 在 frontmatter 加入建議嘅 tags
+
+最多處理 20 個筆記（一次唔好太多）。完成後報告處理咗幾多個。
+"
+```
+
+### 場景三：建議 Backlink
+
+```bash
+# 每週一次（計算量較大，用好模型）
+openclaw cron add \
+  --schedule "0 10 * * 0" \
+  --agent main \
+  --command "
+分析 Obsidian vault 入面上週新增嘅筆記，搵出同 vault 裡面現有筆記嘅關聯。
+
+對每個新筆記：
+1. 搵出 3–5 個最相關嘅現有筆記
+2. 喺新筆記底部加入 '## 相關筆記' section，用 [[wikilink]] 格式連結
+3. 如果現有筆記都唔係太相關，唔要強行加連結
+
+完成後 Telegram 告訴我加咗幾多個連結。
+  " \
+  --new-session
+```
+
+### 場景四：Meeting Notes 轉 Action Items
+
+```bash
+# 手動觸發（開完會即刻用）
+# 喺 Telegram 打：
+# 「幫我處理 Meeting Notes/2026-03-15-standup.md，提取所有 action items，
+#   建立一個 Tasks/2026-03-15-actions.md，格式係 checkbox list，
+#   每個 task 列出負責人（如有）同 deadline（如有）。」
+```
+
+### 場景五：標記過時內容
+
+```bash
+openclaw cron add \
+  --schedule "0 10 * * 0" \
+  --agent main \
+  --command "
+掃描 Obsidian vault 入面超過 90 天未修改嘅筆記。
+
+對每個筆記：
+1. 判斷內容係咪仍然有效（例如技術教學可能已過時，個人日記唔會過時）
+2. 如果判斷係可能過時，喺 frontmatter 加入 'stale: true' 同 'stale_reason: [原因]'
+3. 唔好刪除任何筆記
+
+最後 Telegram 報告標記咗幾多個可能過時嘅筆記。
+  " \
+  --new-session
+```
+
+---
+
+## 安全隱患
+
+<Callout variant="danger">
+**OpenClaw 有你整個 Obsidian vault 嘅讀寫權限。**
+
+**風險一：意外修改或刪除筆記**
+AI 可能誤解你嘅指令，修改或刪除你唔想動嘅筆記。建議：
+- 設定 soul.md 明確禁止刪除任何筆記
+- 所有修改前先問你確認
+
+**風險二：LLM Provider 可見性**
+你嘅筆記內容（包括私人日記、商業計劃）會發送去 LLM provider。如果私隱係首要考量，用 Ollama 本地模型。
+
+**風險三：AI 自作主張改變 vault 結構**
+AI 可能「幫你優化」vault 結構，但結果可能不符合你嘅偏好。建議喺 soul.md 寫明不允許改變資料夾結構。
+
+如有 `write` 權限的話，做好 git backup 係保護底線。
+</Callout>
+
+---
+
+## 踩坑：Obsidian CLI 設定
+
+**Vault 路徑有空格：**
+
+```bash
+# 注意要加引號
+openclaw config set obsidian.vault_path "/Users/ngyau/Documents/My Vault"
+```
+
+**Obsidian 正在開啟時衝突：**
+
+Obsidian 開着嘅時候，OpenClaw 修改檔案可能導致衝突（Obsidian 未 reload 最新內容）。建議：整理任務喺 Obsidian 關閉後執行，或者用 cron 排喺你唔用 Obsidian 嘅時間段（例如深夜）。
+
+---
+
+## FAQ
+
+**Q：OpenClaw 可唔可以讀取 Obsidian 嘅 Canvas 或者 Excalidraw 檔案？**
+
+`obsidian` Skill 主要針對 Markdown 筆記。Canvas（.canvas 格式）係 JSON，AI 可以讀但理解有限。Excalidraw 嘅圖像部分 AI 唔能直接理解。目前效果最好嘅係純 Markdown 筆記。
+
+**Q：可唔可以讓 AI 根據筆記自動建立 MOC（Map of Content）？**
+
+可以。提示 AI：「分析 vault 入面嘅筆記，識別出主要主題，為每個主題建立一個 MOC 筆記，用 [[wikilink]] 連接相關筆記。」效果視乎你的 vault 大小同結構，大 vault 可能需要分批處理。
+
+**Q：我嘅 vault 有幾千個筆記，AI 係咪讀得晒？**
+
+讀唔晒（context window 有限）。建議用漸進式方法：每次只處理「最近修改嘅 X 個筆記」或「特定資料夾入面嘅筆記」，唔要一次過讓 AI 讀整個 vault。

@@ -1,0 +1,221 @@
+---
+title: "一人公司點用 OpenClaw？5 個即刻見效嘅自動化工作流"
+description: "由 Email 管理到客戶跟進，5 個 freelancer 同一人公司最實用嘅 OpenClaw 自動化設定。"
+category: "use-cases"
+slug: "solo-business"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "12 分鐘"
+seoKeywords:
+  - "openclaw 一人公司"
+  - "openclaw freelancer"
+  - "openclaw 商業應用"
+  - "ai 自動化"
+schemaType: "Article"
+relatedArticles:
+  - "/use-cases/email-briefing"
+  - "/use-cases/telegram-bot"
+  - "/use-cases/cron-automation"
+ctaType: "setup"
+---
+
+## TL;DR
+
+5 個工作流，總月費 **$20–40**，解決一人公司最頭痛嘅 5 個問題：
+
+1. **每日早報** — Email + 行事曆自動摘要，每日 7 點送到 Telegram
+2. **客戶自動回覆** — Telegram/WhatsApp Bot 24 小時回答常見問題
+3. **競爭對手監控** — 對手改價或更新即知道
+4. **內容排程** — 靈感整理 → 草稿 → 排程發佈
+5. **Invoice 提醒** — 自動追蹤未付款，到期前提醒
+
+---
+
+## 工作流一：每日早報
+
+**解決問題：** 每日早上花 30 分鐘整理 email 和行事曆
+
+**設定：** 每日 7:00，自動讀取 Gmail + Google Calendar，生成摘要，Telegram 發送
+
+| 需要 | 詳情 |
+|------|------|
+| Skills | `gmail`、`google-calendar`、`telegram` |
+| Tools | `read`、`messaging` |
+| 月費估計 | ~$5/月 |
+| 安全注意 | Email 內容會發送至 LLM Provider |
+
+詳細設定步驟睇[Email 早報完整教學](/use-cases/email-briefing)。
+
+---
+
+## 工作流二：客戶自動回覆
+
+**解決問題：** 下班後或專注工作時，客戶 Telegram/WhatsApp 問嘢冇人答
+
+**設定：** 建立一個 AI 客服 Bot，自動回答常見問題，複雜問題轉介畀你
+
+| 需要 | 詳情 |
+|------|------|
+| Skills | `telegram`（或 `whatsapp`）、`memory` |
+| Tools | 只需 `messaging`（唔好開 `exec`） |
+| 月費估計 | ~$3–8/月（視乎查詢量） |
+| 安全注意 | 公開 Bot 係 prompt injection 入口，**唔好開 `exec`** |
+
+詳細設定步驟睇[Telegram 客服 Bot 教學](/use-cases/telegram-bot)。
+
+---
+
+## 工作流三：競爭對手監控
+
+**解決問題：** 對手改了定價或推出新服務，你係最後一個知
+
+**設定：** 每日 3 次，自動掃描競爭對手網站，有變動即 Telegram 通知
+
+| 需要 | 詳情 |
+|------|------|
+| Skills | `browser`、`cron`、`memory` |
+| Tools | `browser`、`read`、`messaging` |
+| 月費估計 | ~$3–5/月 |
+| 安全注意 | 只用 `browser`，唔開 `exec`；高頻 scraping 可能違反網站 ToS |
+
+詳細設定步驟睇[網頁監控完整教學](/use-cases/web-monitoring)。
+
+---
+
+## 工作流四：內容排程 Pipeline
+
+**解決問題：** 有靈感但冇時間寫；有草稿但唔記得排程
+
+**設定流程：**
+
+```
+靈感搜集 → 自動儲存 Obsidian
+     ↓
+你確認某個 idea 值得寫
+     ↓
+AI 生成文章大綱
+     ↓
+你 approve 大綱
+     ↓
+AI 撰寫初稿
+     ↓
+你 review + 修改
+     ↓
+AI 排程發佈（Ghost/WordPress API）
+```
+
+| 需要 | 詳情 |
+|------|------|
+| Skills | `web-search`、`obsidian`、`cron`、`memory` |
+| Tools | `read`、`write`、`browser`、`messaging` |
+| 月費估計 | ~$10–15/月（長文需要較多 token） |
+| 安全注意 | **永遠 human-in-the-loop**，AI 唔應該自動發佈，只做到「草稿」 |
+
+<Callout variant="danger">
+**千祈唔好設定 AI 自動發佈。** AI 可能寫錯事實、用詞不當、或者誤解你嘅語氣。發佈咗嘅錯誤內容傷害品牌聲譽。最安全嘅設定係：AI 做草稿 → 你 review → 你手動發佈。
+</Callout>
+
+---
+
+## 工作流五：Invoice 提醒 + 簡單記帳
+
+**解決問題：** 忘記 follow up 未付款嘅客戶；月底唔知賺咗幾多
+
+**設定：**
+
+```bash
+cat > ~/.openclaw/prompts/invoice-reminder.md << 'EOF'
+讀取 ~/Documents/invoices/ 目錄嘅所有 invoice 檔案。
+
+對每個 invoice：
+1. 讀取 invoice 日期、金額、客戶名、付款狀態
+2. 計算距離 due date 嘅天數
+
+報告：
+- 逾期未付：[列出所有逾期 invoice]
+- 即將到期（7 天內）：[列出即將到期嘅 invoice]
+- 本月已收款：HK$ [總額]
+- 本月待收款：HK$ [總額]
+
+如果有逾期 invoice，提醒我要 follow up。
+EOF
+
+# 每週一早上 9 點執行
+openclaw cron add \
+  --schedule "0 9 * * 1" \
+  --agent main \
+  --prompt-file ~/.openclaw/prompts/invoice-reminder.md \
+  --new-session
+```
+
+| 需要 | 詳情 |
+|------|------|
+| Skills | `memory`、`cron` |
+| Tools | `read`、`messaging` |
+| 月費估計 | ~$1–2/月（每週一次） |
+
+---
+
+## 5 個工作流總覽
+
+| 工作流 | 解決問題 | 月費 | 設定難度 |
+|--------|----------|------|----------|
+| 每日早報 | 整理 Email + 行事曆 | ~$5 | ⭐⭐ |
+| 客戶自動回覆 | 24 小時客服 | ~$3–8 | ⭐⭐⭐ |
+| 競爭對手監控 | 掌握市場動向 | ~$3–5 | ⭐⭐ |
+| 內容排程 | 內容創作效率 | ~$10–15 | ⭐⭐⭐⭐ |
+| Invoice 提醒 | 追數記帳 | ~$1–2 | ⭐ |
+| **合計** | | **~$22–35/月** | |
+
+---
+
+## 安全隱患
+
+<Callout variant="danger">
+**一人公司 = Single Point of Failure**
+
+你嘅所有業務數據（Email、客戶對話、Invoice、內容草稿）都在同一個 OpenClaw instance 入面。如果：
+- 你嘅 API Key 外洩 → 攻擊者可以讀取所有數據
+- 你裝咗惡意 Skill → 所有數據都暴露
+
+**架構建議：**
+- 唔好全部工作流用同一個 Agent
+- 分開 `personal` agent（私人事務）同 `business` agent（業務相關）
+- 客服 Bot 用獨立 Agent，只開 `messaging` Tool，完全隔離
+- 定期喺[安全避坑指南](/security/essential-guide)嘅步驟做安全審查
+</Callout>
+
+---
+
+## 建議嘅 Agent 架構
+
+```
+personal agent（個人助手）
+├── Email 早報
+├── 行事曆提醒
+└── Invoice 管理
+
+business agent（業務）
+├── 競爭對手監控
+└── 內容排程
+
+customer-service agent（客服）
+└── Telegram/WhatsApp Bot（只開 messaging）
+```
+
+---
+
+## FAQ
+
+**Q：一人公司有必要設定咁多 Agent 嗎？**
+
+唔一定。如果你剛起步，建議先只裝「每日早報」，穩定跑一週後再加其他工作流。唔要一次過全部設定，容易因為設定太多而冇辦法一一監察每個 workflow 係咪正常運作。
+
+**Q：如果某個工作流出問題，會唔會影響其他工作流？**
+
+如果你用分開嘅 Agent，基本上唔會互相影響。一個 Agent 出問題（例如 Cron 失敗）唔會讓其他 Agent 停止運行。呢個係建議分開 Agent 嘅另一個原因。
+
+**Q：有冇辦法知道每個工作流嘅成本分佈？**
+
+可以喺各 LLM provider 嘅 dashboard 睇到 API 用量，但通常只能按日期，唔能按 Agent 分類。如果你想精確追蹤，可以喺 OpenClaw config 為每個 Agent 用唔同嘅 API Key（需要到 provider 建立多個 Key）。

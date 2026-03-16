@@ -1,0 +1,231 @@
+---
+title: "用 OpenClaw 做內容創作 Pipeline：由 Idea 到發佈嘅自動化"
+description: "OpenClaw 幫你搜集靈感、寫草稿、排版、排程發佈 — 內容創作者嘅 AI 助手完整設定。"
+category: "use-cases"
+slug: "content-pipeline"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "10 分鐘"
+seoKeywords:
+  - "openclaw 內容創作"
+  - "openclaw 寫文"
+  - "openclaw blog"
+  - "ai 內容自動化"
+schemaType: "HowTo"
+relatedArticles:
+  - "/use-cases/cron-automation"
+  - "/skills/essential-setup"
+  - "/troubleshoot/token-optimization"
+ctaType: "setup"
+---
+
+## TL;DR
+
+**5 步內容創作 Pipeline：**
+
+```
+靈感搜集（自動）→ 大綱生成（AI）→ 草稿撰寫（AI）→ 你 Review → 發佈（手動確認）
+```
+
+**核心原則：** AI 做草稿，發佈永遠由你確認。唔要設定全自動發佈。
+
+月費估計：**$15–30/月**（長文需要較多 token）
+
+---
+
+## 需要嘅 Skills 同 Tools
+
+| Skill | 用途 | 安裝指令 | 安全評級 |
+|-------|------|----------|----------|
+| `web-search` | 搜尋熱門話題同研究素材 | `openclaw skill install web-search` | 🟢 安全（官方） |
+| `browser` | 讀取網頁全文、競爭分析 | 內置，無需安裝 | 🟡 注意 |
+| `cron` | 定時靈感搜集 | 內置，無需安裝 | 🟢 安全 |
+| `memory` | 記住你嘅寫作風格同偏好 | 內置，無需安裝 | 🟢 安全 |
+| `obsidian` | 儲存靈感同草稿 | `openclaw skill install obsidian` | 🟢 安全（官方） |
+
+**需要開啟嘅 Tools：** `read`、`write`、`browser`、`messaging`
+
+---
+
+## Pipeline 第一步：靈感搜集（自動）
+
+**目標：** 每日自動搜集熱門話題，儲存到 Obsidian，供你之後挑選。
+
+```bash
+cat > ~/.openclaw/prompts/idea-collection.md << 'EOF'
+每日靈感搜集任務：
+
+搜尋以下來源嘅熱門內容：
+1. Hacker News Top 10 今日熱門
+2. 用 web-search 搵 "{{YOUR_NICHE}} 2026 趨勢" 嘅最新文章
+3. 搜尋你上週寫嘅主題相關嘅新發展（從 memory 取得上週話題）
+
+過濾標準：
+- 唔係純新聞（事件報道）
+- 有教學或分析角度
+- 同你嘅受眾相關
+
+輸出格式：將找到嘅 5–10 個話題寫入 Obsidian：
+Ideas/{{DATE}}-ideas.md
+
+格式：
+## [話題標題]
+**來源：** [URL]
+**為什麼值得寫：** [一句話說明]
+**角度建議：** [你可以從什麼角度寫]
+
+最後 Telegram 通知我今日搜集咗幾多個靈感。
+EOF
+
+openclaw cron add \
+  --schedule "0 8 * * *" \
+  --agent main \
+  --prompt-file ~/.openclaw/prompts/idea-collection.md \
+  --new-session \
+  --env YOUR_NICHE="OpenClaw AI 自動化"
+```
+
+---
+
+## Pipeline 第二步：大綱生成（AI 輔助）
+
+你從靈感清單揀中一個話題後，手動觸發大綱生成：
+
+```bash
+# 喺 Telegram 發：
+# 「幫我為呢個話題生成文章大綱：[話題標題]
+#   目標讀者：[你嘅受眾描述]
+#   文章長度：約 1500 字
+#   語氣：[輕鬆/專業/教學]
+#
+#   格式：
+#   - H1 Title
+#   - H2 sections（4–6 個）
+#   - 每個 H2 嘅要點（bullet points）
+#   - 建議嘅 CTA
+#
+#   寫入 Drafts/[話題]-outline.md」
+```
+
+**你需要確認大綱後先進入下一步。** 唔要跳過呢一步直接要 AI 寫文章——大綱決定文章結構，花 5 分鐘 review 大綱比之後大改草稿省時得多。
+
+---
+
+## Pipeline 第三步：草稿撰寫（AI 輔助）
+
+大綱確認後，觸發草稿生成：
+
+```bash
+# 喺 Telegram 發：
+# 「根據 Drafts/[話題]-outline.md 嘅大綱，幫我寫文章草稿。
+#
+#   寫作風格：（參考 memory 入面記錄嘅我嘅風格）
+#   - 廣東話書面語
+#   - 每個 H2 約 200–300 字
+#   - 包含實際例子，唔好太抽象
+#   - 語氣：[輕鬆但專業]
+#
+#   寫好後儲存到 Drafts/[話題]-draft.md
+#   唔要發佈，等我 review。」
+```
+
+**Prompt 迭代提示：** 頭幾篇文章 AI 可能唔符合你嘅語氣。每次 review 完，在 memory 或 soul.md 記錄「我唔鍾意嘅寫法」，AI 會越來越了解你嘅風格。
+
+---
+
+## Pipeline 第四步：SEO 優化（AI 輔助）
+
+```bash
+# 喺 Telegram 發：
+# 「讀取 Drafts/[話題]-draft.md，幫我做 SEO 優化建議：
+#
+#   1. 建議 3 個 Title 選項（包含主要關鍵字）
+#   2. Meta Description（150 字以內）
+#   3. H2/H3 結構係咪涵蓋主要關鍵字
+#   4. 內部連結機會（可以連去我嘅哪些已有文章？）
+#   5. 建議加入嘅 FAQ（2–3 條讀者可能搜索嘅問題）
+#
+#   唔好直接修改文章，只提建議，我自己改。」
+```
+
+---
+
+## Pipeline 第五步：你 Review + 發佈
+
+**這一步必須由你完成，唔應該自動化。**
+
+Checklist：
+- [ ] 事實核查（AI 可能寫錯數字或年份）
+- [ ] 語氣符合品牌聲音
+- [ ] 唔包含敏感或爭議性內容
+- [ ] 內部連結正確
+- [ ] SEO meta 填寫完畢
+- [ ] 預覽排版無問題
+
+確認後，你自己登入 CMS 發佈，或者用 API 發佈時需要你的確認步驟。
+
+---
+
+## 安全隱患
+
+<Callout variant="danger">
+**自動發佈係最危險嘅設定。**
+
+唔要設定 OpenClaw 自動發佈內容。原因：
+
+- **AI 可能寫出錯誤事實**：日期、數字、引用可能係 AI 幻覺
+- **AI 可能誤解語氣**：本來想寫輕鬆嘅文章，AI 可能寫成過份非正式甚至冒犯性嘅內容
+- **社交媒體 Token 洩露風險**：如果你嘅 OpenClaw 有社交媒體 API Token，Token 洩露等於別人可以以你名義發佈任何內容
+
+**社交媒體 Token 安全原則：**
+- 唔好將社交媒體 API Token 存係 OpenClaw 入面，除非真係需要自動發佈功能
+- 如果需要，用 write-only、有過期時間嘅 Token
+- 定期輪換 Token
+
+詳細安全設定睇[安全避坑指南](/security/essential-guide)。
+</Callout>
+
+---
+
+## 月費估計
+
+| 用量 | 模型 | 月費估計 |
+|------|------|----------|
+| 每週 2 篇文章 | Claude Sonnet | ~$15/月 |
+| 每週 4 篇文章 | Claude Sonnet | ~$25/月 |
+| 每日靈感搜集 + 每週 3 篇 | Sonnet + Haiku 混合 | ~$20/月 |
+
+長文（1500+ 字）嘅草稿生成消耗大量 token。詳細費用控制睇[Token 慳錢攻略](/troubleshoot/token-optimization)。
+
+---
+
+## 踩坑：AI 生成內容嘅質素問題
+
+**問題一：AI 語氣唔符**
+
+每次 review 完，透過 Telegram 告訴 AI「呢篇文章嘅語氣太正式了，下次更輕鬆一點」。AI 會透過 memory 記住呢個偏好。
+
+**問題二：AI 寫嘅內容太 generic**
+
+喺 prompt 加入更多上下文：「我嘅讀者係香港做 freelance 嘅開發者，佢哋識用 Terminal，但唔係專業 DevOps 背景」。具體嘅受眾描述係提升內容質素最有效嘅方法。
+
+**問題三：AI 重複相同嘅 intro 格式**
+
+喺 soul.md 加入：「文章開頭唔要用『在今日嘅...』或『隨著 AI 嘅發展...』呢類陳腔濫調。直接進入話題。」
+
+---
+
+## FAQ
+
+**Q：AI 寫嘅文章算唔算係我自己寫嘅？SEO 有影響嗎？**
+
+呢個係業界正在討論嘅問題。Google 官方立場係「有用嘅、高質素嘅內容就算係好內容，唔管係否 AI 生成嘅」。但 AI 生成嘅低質素、重複嘅內容係會被降權嘅。你需要 review 同修改 AI 草稿，確保質素，而唔係直接發佈原始 AI 輸出。
+
+**Q：可唔可以用 OpenClaw 管理 WordPress 或 Ghost？**
+
+可以，兩者都有 REST API。但需要自己寫 API 呼叫邏輯，或者搵對應嘅社區 Skill。目前 ClawHub 上有一些 CMS 整合 Skill，搜尋 `wordpress` 或 `ghost` 可以找到，安裝前做安全審查。
+
+**Q：一篇 1500 字嘅文章大概消耗幾多 token？**
+
+大綱生成：約 2,000–3,000 tokens。草稿生成：約 5,000–10,000 tokens（視乎 prompt 長度同生成內容長度）。SEO 優化：約 2,000 tokens。一篇文章嘅完整 pipeline 大概用 10,000–15,000 tokens，用 Claude Sonnet 約 $0.05–0.08。

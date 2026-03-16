@@ -1,0 +1,212 @@
+---
+title: "用 OpenClaw 自動 Review GitHub PR + 管理 Issue"
+description: "OpenClaw 自動幫你睇 PR diff、寫 review comment、monitor CI status、管理 issue — 開發者最實用嘅自動化。"
+category: "use-cases"
+slug: "github-review"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "9 分鐘"
+seoKeywords:
+  - "openclaw github"
+  - "openclaw pr review"
+  - "openclaw code review"
+  - "ai code review"
+schemaType: "HowTo"
+relatedArticles:
+  - "/skills/essential-setup"
+  - "/use-cases/cron-automation"
+  - "/security/essential-guide"
+ctaType: "setup"
+---
+
+## TL;DR
+
+用 OpenClaw 做 GitHub 自動化：
+- **PR Review**：自動讀 diff，寫具體嘅 review comment
+- **CI 監控**：Build 失敗即 Telegram 通知
+- **Issue Triage**：新 Issue 自動分類同加 label
+- **依賴審計**：定期掃描安全漏洞
+
+月費估計：**$5–15/月**（視乎 PR 量同 diff 大小）
+
+---
+
+## 需要嘅 Skills 同 Tools
+
+| Skill | 用途 | 安裝指令 | 安全評級 |
+|-------|------|----------|----------|
+| `github` | PR/Issue/CI 管理 | `openclaw skill install github` | 🟢 安全（官方，10K 下載） |
+| `git` | 本地 git 操作 | 內置，無需安裝 | 🟢 安全 |
+
+**需要開啟嘅 Tools：** `exec`（用於 git 操作）、`read`
+
+---
+
+## 設定步驟
+
+### 第 1 步：安裝 GitHub Skill 並認證
+
+```bash
+# 安裝 github skill
+openclaw skill install github
+
+# 用 GitHub CLI 認證（推薦）
+gh auth login
+
+# 確認認證成功
+gh auth status
+```
+
+### 第 2 步：建立專用嘅 Coder Agent
+
+```bash
+openclaw agents create coder
+```
+
+設定 soul.md：
+
+```bash
+cat > ~/.openclaw/agents/coder/soul.md << 'EOF'
+你係代碼審查助手，專注軟件開發工作。
+
+## 行為規則
+- 唔清楚需求前唔好執行任何操作
+- 執行 git 操作前必須告訴我你打算做乜
+- 唔好直接 push 到 main/master 分支
+- Review comment 要具體，說明問題所在同建議改法
+
+## 代碼 Review 標準
+- 檢查：邏輯錯誤、安全漏洞、性能問題
+- 忽略：純格式問題（交由 linter 處理）
+- 語氣：建設性、尊重，唔好過於嚴苛
+
+## 禁止事項
+- 唔好刪除任何 branch
+- 唔好改動 main/master
+- 唔好喺冇我確認嘅情況下 merge PR
+EOF
+```
+
+### 第 3 步：設定 PR Auto-Review
+
+```bash
+cat > ~/.openclaw/prompts/pr-review.md << 'EOF'
+請幫我 review GitHub PR #{{PR_NUMBER}} in repo {{REPO}}。
+
+步驟：
+1. 用 `gh pr view {{PR_NUMBER}} --repo {{REPO}}` 睇 PR 概覽
+2. 用 `gh pr diff {{PR_NUMBER}} --repo {{REPO}}` 睇完整 diff
+3. 分析以下方面：
+   - 🔴 Blockers：必須修復先可以 merge 嘅問題
+   - 🟡 Suggestions：建議改善但唔阻 merge
+   - 🟢 Positives：寫得好嘅地方
+4. 用 `gh pr review {{PR_NUMBER}} --repo {{REPO}} --comment -b "你嘅 review"` 提交 comment
+
+如果有 blocker，喺 comment 最頂寫「⛔ CHANGES REQUESTED」。
+如果冇 blocker，寫「✅ LGTM（附 suggestions）」。
+EOF
+```
+
+設定 Cron Job，自動 review 新 PR：
+
+```bash
+openclaw cron add \
+  --schedule "*/30 * * * *" \
+  --agent coder \
+  --command "檢查 repo your-username/your-repo 有冇新嘅未 review PR（created_at 係過去 1 小時內）。如果有，自動執行 PR review。" \
+  --new-session
+```
+
+### 第 4 步：CI 狀態監控
+
+```bash
+openclaw cron add \
+  --schedule "*/15 * * * *" \
+  --agent coder \
+  --command "檢查 your-username/your-repo 最新嘅 CI run 狀態。如果係 failure 或 cancelled，透過 Telegram 通知我 run ID 同失敗嘅 step。" \
+  --new-session
+```
+
+### 第 5 步：Issue Triage
+
+```bash
+cat > ~/.openclaw/prompts/issue-triage.md << 'EOF'
+請 triage GitHub repo {{REPO}} 嘅未 label issue：
+
+用 `gh issue list --repo {{REPO}} --no-labels` 列出冇 label 嘅 issue。
+
+對每個 issue：
+1. 讀取 issue 內容
+2. 分配適當 label：
+   - `bug`：明確嘅 bug report
+   - `enhancement`：新功能請求
+   - `question`：使用問題
+   - `good first issue`：適合新貢獻者
+   - `priority:high`：影響核心功能
+3. 用 `gh issue edit` 加上 label
+4. 最後 Telegram 告訴我 triage 咗幾多個 issue
+EOF
+
+openclaw cron add \
+  --schedule "0 10 * * *" \
+  --agent coder \
+  --prompt-file ~/.openclaw/prompts/issue-triage.md \
+  --new-session \
+  --env REPO="your-username/your-repo"
+```
+
+---
+
+## 安全隱患
+
+<Callout variant="danger">
+**GitHub Token 嘅風險：**
+
+GitHub Token 有你嘅 repo 讀寫權限。如果 Token 洩露：
+- 攻擊者可以讀取你所有（包括 private）嘅 repo
+- 攻擊者可以以你嘅名義 push 代碼、建立 PR、修改 issue
+- 攻擊者可以刪除 repo（如果 token 有 delete 權限）
+
+**安全建議：**
+- 使用 **Fine-grained Personal Access Token**（唔係 classic token）
+- PR Review 只需要 `pull_requests:read` + `contents:read`
+- 自動 label issue 需要 `issues:write`
+- 唔需要 `delete_repo` 權限，永遠唔要授予
+- Token 存喺 OpenClaw config（唔好明文寫喺 prompt 入面）
+
+詳細安全設定睇[安全避坑指南](/security/essential-guide)。
+</Callout>
+
+**AI Review 唔係萬能：**
+
+AI 生成嘅 review comment 可能有誤，尤其係複雜嘅業務邏輯錯誤。建議：
+- 將 AI review 當作「第一輪過濾」
+- 重要 PR 仍然需要人工 review
+- 唔好設定 AI 可以直接 approve 同 merge PR
+
+---
+
+## 月費估計
+
+| PR 量 | 平均 Diff 大小 | 模型 | 月費估計 |
+|-------|----------------|------|----------|
+| 10 PR/月 | 小（少於 100 行） | Claude Haiku | ~$2/月 |
+| 30 PR/月 | 中（100–500 行） | Claude Sonnet | ~$8/月 |
+| 50 PR/月 | 大（500+ 行） | Claude Sonnet | ~$15/月 |
+
+---
+
+## FAQ
+
+**Q：AI Review 嘅準確度有幾高？**
+
+對於明顯嘅問題（例如 null 檢查缺失、明顯邏輯錯誤、安全漏洞如 SQL injection）準確度高。對於業務邏輯嘅正確性、複雜嘅並發問題、性能調優，AI 嘅判斷需要人工驗證。把 AI review 當作有用嘅第一步，唔係最終裁決。
+
+**Q：可唔可以設定 AI 自動 approve 同 merge？**
+
+技術上可以，但強烈唔建議。自動 merge 失去咗最後一道人工防線，一旦 AI 判斷出錯，錯誤代碼直接進入 main branch。最安全嘅設定係：AI 做 review、提建議，approve + merge 由人手確認。
+
+**Q：支唔支持 GitLab / Bitbucket？**
+
+`github` Skill 係針對 GitHub 設計嘅。GitLab 同 Bitbucket 有各自嘅社區 Skill，但功能同成熟度可能唔同。在 ClawHub 搜尋 `gitlab` 或 `bitbucket` 可以找到相關 Skill，記得做安全審查先安裝。

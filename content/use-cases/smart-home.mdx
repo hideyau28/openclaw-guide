@@ -1,0 +1,196 @@
+---
+title: "用 OpenClaw 控制智能家居：Home Assistant 整合教學"
+description: "用 Telegram 同 OpenClaw 講句嘢就可以開燈、調冷氣、鎖門 — 比 Siri 更強嘅 AI 智能家居控制。"
+category: "use-cases"
+slug: "smart-home"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "8 分鐘"
+seoKeywords:
+  - "openclaw 智能家居"
+  - "openclaw home assistant"
+  - "openclaw smart home"
+schemaType: "HowTo"
+relatedArticles:
+  - "/compare/vs-siri"
+  - "/skills/essential-setup"
+  - "/security/essential-guide"
+ctaType: "setup"
+---
+
+## TL;DR
+
+**目標：** 用 Telegram 講句嘢，OpenClaw 自動執行智能家居操作：
+- 「開客廳燈」→ 燈亮
+- 「我出門，出門模式」→ 關所有燈、鎖門、調低冷氣
+- 「如果溫度超過 28 度就自動開冷氣並通知我」→ 自動觸發
+
+**前置條件：** 已安裝並設定好 [Home Assistant](https://www.home-assistant.io/)
+
+---
+
+## 比 Siri 強在邊？
+
+| 功能 | Siri / Shortcuts | OpenClaw |
+|------|-----------------|----------|
+| 單一設備控制 | ✅ 方便 | ✅ |
+| 語音觸發 | ✅ (Hey Siri) | ❌（需要 Telegram） |
+| 複雜多步驟場景 | 需要手動設定每個 Shortcut | ✅ 自然語言描述即可 |
+| 條件觸發（如果溫度>X） | ❌（Shortcuts 有限） | ✅ AI 判斷 |
+| 跨設備協調 | ❌ | ✅ |
+| 回報狀態同歷史 | ❌ | ✅（Telegram 回覆） |
+
+詳細比較睇 [OpenClaw vs Siri](/compare/vs-siri)。
+
+---
+
+## 需要嘅 Skills 同 Tools
+
+| Skill | 用途 | 安裝指令 | 安全評級 |
+|-------|------|----------|----------|
+| `home-assistant` | 控制 Home Assistant 設備 | `openclaw skill install home-assistant` | 🟡 注意（社區 Skill，需審查） |
+| `telegram` | 接收指令、回報狀態 | 內置，無需安裝 | 🟢 安全 |
+| `cron` | 定時自動化場景 | 內置，無需安裝 | 🟢 安全 |
+
+**需要開啟嘅 Tools：** `exec`（呼叫 Home Assistant API）、`messaging`
+
+---
+
+## 設定步驟
+
+### 第 1 步：確認 Home Assistant 已設定
+
+```bash
+# 確認 Home Assistant 可以訪問
+curl http://homeassistant.local:8123/api/
+
+# 或者喺本地 IP
+curl http://192.168.1.X:8123/api/
+```
+
+### 第 2 步：建立 Home Assistant Long-Lived Access Token
+
+1. 登入 Home Assistant 介面
+2. 右下角點擊你嘅名字 → Profile
+3. 底部「Long-Lived Access Tokens」→ Create Token
+4. 複製 Token（只顯示一次）
+
+### 第 3 步：安裝並設定 home-assistant Skill
+
+```bash
+# 先做安全審查
+openclaw skill inspect home-assistant
+
+# 確認無問題後安裝
+openclaw skill install home-assistant
+
+# 設定連接資訊
+openclaw config set home_assistant.url "http://homeassistant.local:8123"
+openclaw config set home_assistant.token "你嘅 Long-Lived Access Token"
+```
+
+### 第 4 步：建立智能家居 Agent 嘅 soul.md
+
+```bash
+cat > ~/.openclaw/agents/home/soul.md << 'EOF'
+你係家居自動化助手。
+
+## 語言
+繁體中文（香港用語）
+
+## 你識控制嘅設備
+- 客廳燈：light.living_room
+- 主人房燈：light.master_bedroom
+- 冷氣：climate.living_room_ac
+- 大門鎖：lock.front_door
+- 電視：media_player.living_room_tv
+
+## 常用場景
+- 出門模式：關所有燈 + 鎖大門 + 將冷氣調至 28 度
+- 返家模式：開客廳燈 + 將冷氣調至 25 度
+- 睡眠模式：關所有燈 + 鎖大門 + 關電視
+
+## 行為規則
+- 執行涉及鎖門嘅操作前，必須再次確認（「你確定要鎖門嗎？」）
+- 操作完成後，透過 Telegram 確認已完成嘅操作
+- 如果操作失敗，說明失敗原因
+
+## 禁止事項
+- 唔好喺我冇明確指示嘅情況下主動改變任何設備狀態
+EOF
+```
+
+### 第 5 步：設定定時自動化
+
+```bash
+# 每日早上 7:30 執行早晨模式
+openclaw cron add \
+  --schedule "30 7 * * 1-5" \
+  --agent home \
+  --command "執行早晨模式：開客廳燈、將冷氣調至 24 度、播放早晨音樂（Sonos）。" \
+  --new-session
+
+# 每日晚上 11:30 執行睡眠模式
+openclaw cron add \
+  --schedule "30 23 * * *" \
+  --agent home \
+  --command "執行睡眠模式：關所有燈、鎖大門、關電視、將冷氣調至 26 度。" \
+  --new-session
+```
+
+---
+
+## 安全隱患
+
+<Callout variant="danger">
+**IoT 控制權限 = 實體安全風險。**
+
+OpenClaw 控制智能家居係真實嘅物理操作：
+
+- **門鎖控制**：如果 AI 判斷錯誤或被 prompt injection，可能在你出門時自動開鎖
+- **攝像頭控制**：如果你有攝像頭，AI 有潛在訪問影像嘅能力
+- **Siri 嘅安全層對比**：Apple HomeKit 有專門嘅安全審查機制（Home app 嘅人臉辨識、NFC 確認），OpenClaw 冇呢層保護
+
+**強制安全規則：**
+- **所有涉及鎖門、開門嘅操作必須 Human-in-the-loop**（Agent 問你確認，唔好自動執行）
+- 喺 soul.md 裡面明確寫「執行鎖/開門前必須人工確認」
+- 考慮唔畀 Agent 控制門鎖，只畀控制燈同冷氣
+- 用獨立嘅 HA Access Token，只開所需設備嘅權限
+
+詳細安全設定睇[安全避坑指南](/security/essential-guide)。
+</Callout>
+
+---
+
+## 踩坑：常見問題
+
+**Home Assistant API 連接失敗：**
+
+```bash
+# 確認 HA 地址正確
+ping homeassistant.local
+
+# 如果 mDNS 唔 work，用 IP 直連
+openclaw config set home_assistant.url "http://192.168.1.100:8123"
+```
+
+**設備名稱唔符：**
+
+喺 Home Assistant → Developer Tools → States 可以睇到所有設備嘅 entity ID（例如 `light.living_room`）。Soul.md 入面嘅設備名稱要同 entity ID 完全對應。
+
+---
+
+## FAQ
+
+**Q：唔有 Home Assistant 可唔可以直接控制 HomeKit 設備？**
+
+唔可以直接。HomeKit 係封閉系統，冇公開 API。需要用 Home Assistant 作中介（HA 支持 HomeKit 整合），或者用其他橋接方案（如 Homebridge）。
+
+**Q：可唔可以設定「如果我手機唔係喺屋企就自動鎖門」？**
+
+可以，但需要手機位置追蹤整合（例如 HA 嘅 companion app 會上報手機位置）。設定複雜，而且涉及更多隱私問題。建議先從簡單嘅場景開始，穩定後再嘗試複雜設定。
+
+**Q：OpenClaw 控制智能家居同直接用 Home Assistant Automation 有乜分別？**
+
+HA Automation 係確定性規則（如果 X 就做 Y），設定每個場景都需要你預先定義。OpenClaw 可以用自然語言描述新場景、理解模糊指令（「幫我調一個舒服嘅睡眠環境」），AI 自己判斷點設定。代價係較高成本同 AI 偶爾的判斷錯誤。

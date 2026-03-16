@@ -1,0 +1,147 @@
+---
+title: "OpenClaw Skills 分類推薦：生產力 / 通訊 / 開發 / 自動化 / 搜尋（2026 年 3 月版）"
+description: "由 13,000+ Skills 入面精選 30 個最實用嘅，按分類排列，每個附安全評級同安裝指令。"
+category: "skills"
+slug: "top-skills-by-category"
+date: "2026-03-15"
+lastVerified: "2026-03-15"
+openclawVersion: "2026.3.11"
+readingTime: "12 分鐘"
+seoKeywords:
+  - "openclaw skills 推薦"
+  - "openclaw 最佳 skills"
+  - "clawhub 推薦"
+  - "openclaw skills 2026"
+schemaType: "Article"
+relatedArticles:
+  - "/skills/essential-setup"
+  - "/skills/clawhub-guide"
+  - "/security/essential-guide"
+ctaType: "setup"
+---
+
+## TL;DR
+
+由 13,000+ Skills 精選 30 個，按 6 個分類排列。安裝任何社區 Skill（🟡）之前，睇[ClawHub 安全審查指南](/skills/clawhub-guide)。
+
+**安全評級說明：**
+- 🟢 安全：內置或官方 Skill，可直接安裝
+- 🟡 注意：社區 Skill，安裝前做安全審查
+- 🔴 高風險：高權限或有已知爭議，謹慎使用
+
+---
+
+## 第一類：生產力（6 個）
+
+| Skill | 用途 | 來源 | 下載量 | 安全評級 | 安裝指令 |
+|-------|------|------|--------|----------|----------|
+| `memory` | 跨 session 持久記憶，越用越聰明 | 🔵 內置 | — | 🟢 安全 | 已內置 |
+| `capability-evolver` | AI 自動根據你嘅使用模式進化 Agent 能力 | 🟡 社區 | 35K | 🟡 注意 | `openclaw skill install capability-evolver` |
+| `self-improving-agent` | 自動學習同改善 Agent 性能 | 🟡 社區 | 15K | 🟡 注意 | `openclaw skill install self-improving-agent` |
+| `gog` | Google Workspace 全家桶（Gmail/Calendar/Drive/Sheets） | 🟡 社區 | 14K | 🟡 注意 | `openclaw skill install gog` |
+| `obsidian` | 整合 Obsidian vault，AI 管理知識庫 | 🟢 官方 | — | 🟢 安全 | `openclaw skill install obsidian` |
+| `apple-notes` | 讀寫 Apple Notes + Reminders | 🟢 官方 | — | 🟢 安全 | `openclaw skill install apple-notes` |
+
+**推薦順序：** `memory`（必裝）→ `obsidian`（Obsidian 用戶）→ `gog`（Google 重度用戶）
+
+<Callout variant="warning">
+**`capability-evolver` 同 `self-improving-agent` 注意：** 呢兩個 Skill 會讓 AI 自動修改自身行為，係強大但亦係高風險嘅能力。裝之前做完整安全審查，並設定明確嘅限制喺 soul.md 入面。
+</Callout>
+
+---
+
+## 第二類：通訊（5 個）
+
+| Skill | 用途 | 來源 | 下載量 | 安全評級 | 安裝指令 |
+|-------|------|------|--------|----------|----------|
+| `telegram` | Telegram Bot 收發訊息 | 🔵 內置 | — | 🟢 安全 | 已內置 |
+| `wacli` | WhatsApp CLI 整合（Baileys） | 🟡 社區 | 16K | 🟡 注意 | `openclaw skill install wacli` |
+| `discord` | Discord Bot API | 🟡 社區 | — | 🟡 注意 | `openclaw skill install discord` |
+| `slack` | Slack Socket Mode 整合 | 🟡 社區 | — | 🟡 注意 | `openclaw skill install slack` |
+| `eleven-labs-agent` | AI 語音通話（ElevenLabs TTS） | 🟡 社區 | — | 🟡 注意 | `openclaw skill install eleven-labs-agent` |
+
+**推薦：** `telegram` 係最穩定、最多人用嘅 channel，新手首選。`wacli` 可用但有 WhatsApp 封號風險（非官方 API）。
+
+---
+
+## 第三類：開發者工具（5 個）
+
+| Skill | 用途 | 來源 | 下載量 | 安全評級 | 安裝指令 |
+|-------|------|------|--------|----------|----------|
+| `git` | 本地 git 操作 | 🔵 內置 | — | 🟢 安全 | 已內置 |
+| `github` | PR/Issue/CI 管理 | 🟢 官方 | 10K | 🟢 安全 | `openclaw skill install github` |
+| `docker` | Container 管理 | 🟢 官方 | — | 🟢 安全 | `openclaw skill install docker` |
+| `n8n-workflow` | n8n webhook 整合 | 🟡 社區 | — | 🟡 注意 | `openclaw skill install n8n-workflow` |
+| `auto-pr-merger` | 自動合併符合條件嘅 PR | 🟡 社區 | — | 🔴 高風險 | `openclaw skill install auto-pr-merger` |
+
+<Callout variant="danger">
+**`auto-pr-merger` 極度謹慎：** 自動 merge PR 移除咗最後一道人工審查，一旦 AI 判斷出錯，錯誤代碼直接進入主分支。除非你完全清楚自己在做乜，否則唔建議安裝。
+</Callout>
+
+---
+
+## 第四類：搜尋同研究（4 個）
+
+| Skill | 用途 | 來源 | 下載量 | 安全評級 | 安裝指令 |
+|-------|------|------|--------|----------|----------|
+| `browser` | 網頁自動化、抓取資料 | 🔵 內置 | — | 🟢 安全（但需謹慎使用） | 已內置 |
+| `tavily` | AI-native 搜尋引擎，比 Google 更適合 AI | 🟢 官方 | — | 🟢 安全 | `openclaw skill install tavily` |
+| `agent-browser` | 進階瀏覽器自動化 | 🟡 社區 | 11K | 🟡 注意 | `openclaw skill install agent-browser` |
+| `byterover` | 資訊探索同整合 | 🟡 社區 | 16K | 🟡 注意 | `openclaw skill install byterover` |
+| `summarize` | 長文章、PDF、網頁摘要 | 🟡 社區 | 10K | 🟡 注意 | `openclaw skill install summarize` |
+
+**推薦：** `tavily` 係做研究型任務嘅最佳搜尋 Skill，專為 AI Agent 設計，結果質素高過一般 web search。
+
+---
+
+## 第五類：自動化（5 個）
+
+| Skill | 用途 | 來源 | 下載量 | 安全評級 | 安裝指令 |
+|-------|------|------|--------|----------|----------|
+| `cron` | 定時任務排程 | 🔵 內置 | — | 🟢 安全 | 已內置 |
+| `webhook` | 接收外部觸發事件 | 🔵 內置 | — | 🟢 安全 | 已內置 |
+| `atxp` | 進階自動化流程 | 🟡 社區 | 14K | 🟡 注意 | `openclaw skill install atxp` |
+| `mission-control` | 多 Agent 任務調度 | 🟡 社區 | — | 🟡 注意 | `openclaw skill install mission-control` |
+| `capability-evolver` | 自動化能力進化（見生產力類） | 🟡 社區 | 35K | 🟡 注意 | 同上 |
+
+---
+
+## 第六類：智能家居同 IoT（3 個）+ 安全管理（2 個）
+
+| Skill | 用途 | 來源 | 下載量 | 安全評級 | 安裝指令 |
+|-------|------|------|--------|----------|----------|
+| `home-assistant` | 控制 Home Assistant 智能家居 | 🟡 社區 | — | 🟡 注意（涉及實體安全） | `openclaw skill install home-assistant` |
+| `sonoscli` | Sonos 音響控制 | 🟡 社區 | 10K | 🟡 注意 | `openclaw skill install sonoscli` |
+| `mqtt` | IoT 設備 MQTT 通訊 | 🟡 社區 | — | 🟡 注意 | `openclaw skill install mqtt` |
+| `arc-trust-verifier` | Skills 信任度驗證工具 | 🟡 社區 | — | 🟢 安全 | `openclaw skill install arc-trust-verifier` |
+| `skill-vetter` | Skills 安全審查助手 | 🟡 社區 | — | 🟢 安全 | `openclaw skill install skill-vetter` |
+
+---
+
+## 新手推薦安裝順序
+
+剛起步？按呢個順序裝，唔會出錯：
+
+1. `memory`（內置，必裝）
+2. `telegram`（內置，主要 channel）
+3. `github`（官方，開發者必備）
+4. `obsidian`（官方，知識管理）
+5. `tavily`（官方，搜尋能力）
+
+之後按需要再加社區 Skill，每個安裝前做[安全審查](/skills/clawhub-guide)。
+
+---
+
+## FAQ
+
+**Q：下載量高嘅 Skill 係咪一定更安全？**
+
+唔係。ClawHavoc 事件入面有些惡意 Skill 嘅下載量就係靠刷高嘅。下載量可以作為參考，但唔係安全保證。必須同時睇 Security Scan + 作者信譽 + Permission 要求。
+
+**Q：`capability-evolver` 嘅 35K 下載量係咪可信？**
+
+呢個 Skill 確實有很高嘅用戶基礎，但「AI 自動進化自身」係非常高風險嘅能力。建議先用幾週後再決定要唔要裝，唔要因為下載量高就覺得安全。
+
+**Q：官方 Skills 有冇可能出問題？**
+
+極少，但唔係零。官方 Skill 有 OpenClaw 團隊審核，風險遠低於社區 Skill。如果你係高度安全意識嘅用戶，`skills.verified_only true` 係最保守嘅設定。
