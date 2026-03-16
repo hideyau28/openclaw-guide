@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/install/layout,_N_T_/install/[slug]/layout,_N_T_/install/[slug]/page,_N_T_/install/api-keys"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/install/$d$slug/__PAGE__",
+    "/install/$d$slug",
+    "/install",
+    "/_index",
+    "/_head"
+  ]
+}

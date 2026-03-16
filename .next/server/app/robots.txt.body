@@ -1,0 +1,4 @@
+User-Agent: *
+Allow: /
+
+Sitemap: https://openclaw-guide-mauve.vercel.app/sitemap.xml

@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build 2>&1)",
+      "Bash(git add lib/constants.ts && git commit -m \"fix sitemap URL and add article pages\" && git push)",
+      "Bash(git add content/security/essential-guide.mdx && git commit -m \"feat: add real security guide content with CVE-2026-25253 and 5 risks\" && git push)",
+      "Bash(git add content/install/macos.mdx && git commit -m \"$\\(cat <<'EOF'\nadd macos install guide with screenshots\n\nComplete 13-step macOS installation tutorial in Cantonese covering:\n- clawdbot uninstall and openclaw fresh install\n- Onboarding flow with QuickStart and Full Reset\n- OpenAI Codex OAuth + GPT-5.4 model setup\n- Telegram Bot creation and pairing\n- Post-install security verification steps\n- FAQ: Anthropic ToS warning, migration from clawdbot, cost, Windows\nEOF\n\\)\")",
+      "Bash(git push 2>&1)",
+      "Bash(git add content/troubleshoot/gateway.mdx && git commit -m \"add gateway troubleshooting guide\")",
+      "Bash(git push)",
+      "Bash(git add content/compare/vs-chatgpt.mdx && git commit -m \"add openclaw vs chatgpt comparison\" && git push)",
+      "Bash(git add content/troubleshoot/token-optimization.mdx && git commit -m \"add token optimization guide\" && git push)",
+      "Bash(git add content/skills/essential-setup.mdx && git commit -m \"add skills recommendation guide\" && git push)",
+      "Bash(git add content/install/api-keys.mdx && git commit -m \"add api key setup guide\" && git push)",
+      "Bash(git add -A && git commit -m \"batch: add 8 new articles\" && git push)",
+      "Bash(git add -A && git commit -m \"batch: add 10 use-case and skills articles\" && git push)",
+      "Bash(git add -A && git status)",
+      "Bash(git commit -m \"$\\(cat <<'EOF'\nfeat: add affiliate banners, digital products section, and resources page\n\n- Add AffiliateBanner component \\(digitalocean, openrouter, mac-mini\\)\n- Add DigitalProducts section to homepage\n- Add /resources/tools static page\n- Insert affiliate banners into 7 MDX articles at contextual positions\n- Export AffiliateBanner in mdx-components.tsx\n- Add 推薦工具 link to footer\nEOF\n\\)\")",
+      "Bash(git add:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)"
+    ]
+  }
+}

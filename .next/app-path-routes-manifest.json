@@ -1,0 +1,18 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/about/page": "/about",
+  "/compare/[slug]/page": "/compare/[slug]",
+  "/favicon.ico/route": "/favicon.ico",
+  "/install/[slug]/page": "/install/[slug]",
+  "/page": "/",
+  "/resources/tools/page": "/resources/tools",
+  "/robots.txt/route": "/robots.txt",
+  "/security/[slug]/page": "/security/[slug]",
+  "/services/secure-setup/page": "/services/secure-setup",
+  "/sitemap.xml/route": "/sitemap.xml",
+  "/skills/[slug]/page": "/skills/[slug]",
+  "/start/[slug]/page": "/start/[slug]",
+  "/troubleshoot/[slug]/page": "/troubleshoot/[slug]",
+  "/use-cases/[slug]/page": "/use-cases/[slug]"
+}
