@@ -26,7 +26,7 @@ const useCases = [
 ];
 
 export default function HomePage() {
-  const articles = getAllArticles().slice(0, 3);
+  const articles = getAllArticles().slice(0, 6);
 
   return (
     <div className="mx-auto max-w-4xl px-4">
@@ -108,7 +108,10 @@ export default function HomePage() {
                     {cat?.name}
                   </span>
                   <h3 className="mb-1 font-semibold">{a.title}</h3>
-                  <p className="text-sm text-gray-600">{a.description}</p>
+                  <p className="mb-2 text-sm text-gray-600">{a.description}</p>
+                  <p className="text-xs text-gray-400">
+                    {a.readingTime} · {a.date}
+                  </p>
                 </Link>
               );
             })}
