@@ -1,5 +1,5 @@
 export const SITE_NAME = "OpenClaw 繁中教學站";
-export const SITE_URL = "https://openclaw-guide-mauve.vercel.app";
+export const SITE_URL = "https://openclawguidehk.com";
 export const SITE_DESCRIPTION =
   "OpenClaw 開源 AI Agent 繁體中文實戰教學 — 安全設定、部署指南、MCP 開發、自動化工作流";
 export const AUTHOR = "OpenClaw 繁中教學站";
