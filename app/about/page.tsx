@@ -52,6 +52,36 @@ export default function AboutPage() {
             Email：
             <a href="mailto:yau@flowstudiohk.com">yau@flowstudiohk.com</a>
           </li>
+          <li>
+            Facebook：
+            <a
+              href="https://www.facebook.com/profile.php?id=61582194345724"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              OpenClaw Guide HK
+            </a>
+          </li>
+          <li>
+            Instagram：
+            <a
+              href="https://www.instagram.com/midlife_ai_hk"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              @midlife_ai_hk
+            </a>
+          </li>
+          <li>
+            Threads：
+            <a
+              href="https://www.threads.net/@midlife_ai_hk"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              @midlife_ai_hk
+            </a>
+          </li>
         </ul>
       </div>
 
