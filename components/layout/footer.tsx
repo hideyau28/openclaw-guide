@@ -115,6 +115,21 @@ export function Footer() {
           </a>
         </div>
 
+        <div className="mb-4 flex justify-center gap-4">
+          <Link
+            href="/terms"
+            className="text-xs text-neutral-500 hover:text-white"
+          >
+            服務條款
+          </Link>
+          <Link
+            href="/refund"
+            className="text-xs text-neutral-500 hover:text-white"
+          >
+            退款政策
+          </Link>
+        </div>
+
         <p className="mb-2 text-center text-sm text-neutral-400">
           由香港獨立開發者 Yau 建立 🇭🇰
         </p>
