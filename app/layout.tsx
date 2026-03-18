@@ -28,10 +28,33 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   metadataBase: new URL(SITE_URL),
+  keywords: [
+    "OpenClaw",
+    "AI Agent",
+    "繁體中文",
+    "安全設定",
+    "教學",
+    "香港",
+    "MCP",
+    "Gateway",
+    "自動化",
+  ],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+  },
   openGraph: {
     siteName: SITE_NAME,
     locale: "zh_HK",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  alternates: {
+    canonical: SITE_URL,
   },
 };
 
