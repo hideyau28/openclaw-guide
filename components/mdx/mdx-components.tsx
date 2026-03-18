@@ -11,7 +11,7 @@ export const mdxComponents: MDXComponents = {
       {...(props as { src: string; alt: string })}
       width={800}
       height={450}
-      className="my-4 rounded-lg"
+      className="my-4 max-w-full rounded-lg h-auto"
     />
   ),
   h2: (props) => (
@@ -52,7 +52,7 @@ export const mdxComponents: MDXComponents = {
     />
   ),
   table: (props) => (
-    <div className="my-4 overflow-hidden rounded-xl">
+    <div className="my-4 overflow-x-auto rounded-xl">
       <table className="w-full border-collapse text-sm" {...props} />
     </div>
   ),

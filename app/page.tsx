@@ -50,22 +50,22 @@ export default function HomePage() {
         <p className="mb-8 text-sm text-gray-400">
           100% 免費教學 · 繁體中文 · 香港人寫 · 每週更新
         </p>
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
           <Link
             href="/security/essential-guide"
-            className="rounded-lg bg-red-700 px-6 py-3 font-medium text-white shadow-sm hover:bg-red-800"
+            className="rounded-lg bg-red-700 px-6 py-3 text-center font-medium text-white shadow-sm hover:bg-red-800"
           >
             {"\uD83D\uDD12"} 安全設定指南
           </Link>
           <Link
             href="/install/macos"
-            className="rounded-lg border-2 border-neutral-300 px-6 py-3 font-medium transition-colors hover:border-red-700 hover:text-red-700"
+            className="rounded-lg border-2 border-neutral-300 px-6 py-3 text-center font-medium transition-colors hover:border-red-700 hover:text-red-700"
           >
             {"\uD83D\uDD27"} 安裝教學
           </Link>
           <Link
             href="/troubleshoot/gateway"
-            className="rounded-lg border-2 border-neutral-300 px-6 py-3 font-medium transition-colors hover:border-red-700 hover:text-red-700"
+            className="rounded-lg border-2 border-neutral-300 px-6 py-3 text-center font-medium transition-colors hover:border-red-700 hover:text-red-700"
           >
             {"\uD83D\uDD34"} 排錯中心
           </Link>
