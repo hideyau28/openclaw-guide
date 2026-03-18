@@ -43,6 +43,7 @@ export const NAV_ITEMS = [
   { href: "/troubleshoot/gateway", label: "排錯" },
   { href: "/use-cases/whatsapp-assistant", label: "實戰" },
   { href: "/services/secure-setup", label: "服務" },
+  { href: "/resources", label: "工具" },
   { href: "/about", label: "About" },
 ];
 
