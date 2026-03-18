@@ -79,21 +79,28 @@ export function generateServiceSchema() {
       itemListElement: [
         {
           "@type": "Offer",
-          name: "基礎方案",
+          name: "代客安裝",
+          price: "199",
+          priceCurrency: "HKD",
+          description: "遠程一對一安裝，30-60 分鐘搞掂",
+        },
+        {
+          "@type": "Offer",
+          name: "安全體檢",
           price: "99",
           priceCurrency: "HKD",
           description: "基本安全檢查 + 設定指引",
         },
         {
           "@type": "Offer",
-          name: "專業方案",
+          name: "安全部署",
           price: "399",
           priceCurrency: "HKD",
           description: "完整安全部署 + 30 日支援",
         },
         {
           "@type": "Offer",
-          name: "企業方案",
+          name: "完整自動化",
           price: "799",
           priceCurrency: "HKD",
           description: "企業級部署 + 持續監控 + 優先支援",

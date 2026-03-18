@@ -5,18 +5,31 @@ import { generateServiceSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: `安全部署服務 | ${SITE_NAME}`,
-  description: "專人幫你由零設定 OpenClaw 到安全上線，三種方案任你揀。",
+  description: "專人幫你由零設定 OpenClaw 到安全上線，四種方案任你揀。",
 };
 
 const tiers = [
   {
-    name: "基礎方案",
+    name: "代客安裝",
+    price: "HK$199",
+    description: "遠程一對一安裝，30-60 分鐘搞掂",
+    features: [
+      "遠程一對一安裝 OpenClaw",
+      "設定 AI Model（OpenRouter / OpenAI）",
+      "連接 Telegram / WhatsApp",
+      "基礎安全設定（Gateway loopback + Token auth）",
+      "確認一切正常運作",
+    ],
+    cta: "預約安裝",
+  },
+  {
+    name: "安全體檢",
     price: "HK$99",
     description: "基本安全檢查 + 設定指引",
     features: ["安全設定檢查清單", "基本環境變數配置", "Email 支援（7 日）"],
   },
   {
-    name: "專業方案",
+    name: "安全部署",
     price: "HK$399",
     description: "完整安全部署 + 30 日支援",
     features: [
@@ -29,11 +42,11 @@ const tiers = [
     highlighted: true,
   },
   {
-    name: "企業方案",
+    name: "完整自動化",
     price: "HK$799",
     description: "企業級部署 + 持續監控 + 優先支援",
     features: [
-      "所有專業方案功能",
+      "所有安全部署功能",
       "高可用架構設計",
       "持續安全監控",
       "優先 Slack/Teams 支援",
@@ -52,7 +65,7 @@ export default function SecureSetupPage() {
           __html: JSON.stringify(generateServiceSchema()),
         }}
       />
-      <div className="mx-auto max-w-4xl px-4 py-12">
+      <div className="mx-auto max-w-5xl px-4 py-12">
         <div className="mb-12 text-center">
           <h1 className="mb-4 text-3xl font-bold md:text-4xl">安全部署服務</h1>
           <p className="mx-auto max-w-xl text-lg text-gray-600">
@@ -60,7 +73,7 @@ export default function SecureSetupPage() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-4">
           {tiers.map((tier) => (
             <div
               key={tier.name}
@@ -98,7 +111,7 @@ export default function SecureSetupPage() {
                     : "border border-gray-300 hover:bg-gray-50"
                 }`}
               >
-                WhatsApp 聯絡
+                {"cta" in tier && tier.cta ? tier.cta : "WhatsApp 聯絡"}
               </a>
             </div>
           ))}
