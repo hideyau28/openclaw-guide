@@ -1,16 +1,17 @@
 ---
-title: "OpenClaw 學習路線圖：由零到自動化嘅最短路徑"
-description: "唔知應該先學邊樣？4 條路線對應你嘅程度，每條都有明確嘅閱讀順序同預計時間。"
+title: "OpenClaw 新手學習路線圖：由零到自動化嘅最短路徑"
+description: "唔知從邊度開始？跟住呢條學習路線，由安裝到安全設定到實戰自動化，一步步進階。"
 category: "start"
 slug: "learning-path"
-date: "2026-03-15"
-lastVerified: "2026-03-15"
-openclawVersion: "2026.3.11"
-readingTime: "4 分鐘"
+date: "2026-03-18"
+lastVerified: "2026-03-18"
+openclawVersion: "2026.3.13"
+readingTime: "5 分鐘"
 seoKeywords:
   - "openclaw 教學"
+  - "openclaw 新手"
+  - "openclaw 學習"
   - "openclaw 入門"
-  - "openclaw 學習路線"
 schemaType: "Article"
 relatedArticles:
   - "/start/what-is-openclaw"
@@ -21,93 +22,140 @@ ctaType: "setup"
 
 ## TL;DR
 
-唔需要全部睇完先開始用。揀最符合你現在狀況嘅路線，跟住走就得。
+4 個階段，由完全唔識到識得自動化：
+
+1. **認識**（30 分鐘）— 了解係乜、幾錢、同 ChatGPT 有乜分別
+2. **安裝 + 安全**（2 小時）— 裝軟件、設 API、做安全設定
+3. **進階設定**（1 小時）— 自定義 Agent、裝 Skills、控制費用
+4. **排錯 + 實戰** — 遇到問題時參考
+
+唔需要全部睇完先開始。跟住你嘅階段走就得。
 
 ---
 
-## 路線 A：「我完全唔知 OpenClaw 係乜」
+## Stage 1 — 認識（30 分鐘）
 
-**預計時間：30 分鐘 ｜ 目標：了解係咪值得裝**
+<Callout variant="tip">
+**目標：了解 OpenClaw 係咪適合你，值唔值得花時間安裝。**
+</Callout>
 
-1. [OpenClaw 係乜？5 分鐘懶人包](/start/what-is-openclaw) — 5 分鐘
-2. [OpenClaw vs ChatGPT](/compare/vs-chatgpt) — 8 分鐘，搞清楚同你用緊嘅工具有乜分別
-3. [費用完整拆解](/start/pricing) — 6 分鐘，確認你嘅預算
-4. 決定要裝 → [macOS 安裝教學](/install/macos)
+按呢個順序讀：
 
-```
-了解係乜 → 同已有工具比較 → 確認費用 → 決定裝唔裝
-```
+### 1. 了解 OpenClaw 係乜
+
+[OpenClaw 係乜？5 分鐘懶人包](/start/what-is-openclaw) — 用最簡單嘅語言解釋 OpenClaw 係乜、可以做啲乜、有乜風險。**5 分鐘讀完就有基本概念。**
+
+### 2. 知道要花幾多錢
+
+[費用完整拆解](/start/pricing) — OpenClaw 軟件免費，但 AI Model API 要錢。呢篇幫你搞清楚每月大約使幾多。**唔好到裝完先嚟驚費用。**
+
+### 3. 理解同 ChatGPT 嘅分別
+
+[OpenClaw vs ChatGPT 完整對比](/compare/vs-chatgpt) — 如果你而家用緊 ChatGPT，呢篇幫你理解 OpenClaw 嘅定位同 ChatGPT 完全唔同。一個係 chatbot，一個係 agent。
 
 ---
 
-## 路線 B：「我想裝，教我點裝」
+## Stage 2 — 安裝 + 安全（2 小時）
 
-**預計時間：45 分鐘 ｜ 目標：裝好第一個可用嘅 Agent**
+<Callout variant="info">
+**目標：裝好一個安全嘅 OpenClaw 環境，可以開始用。**
+</Callout>
 
-1. [macOS 安裝教學](/install/macos) — 12 分鐘，跟住截圖一步步做
-2. [API Key 申請與設定](/install/api-keys) — 10 分鐘，搞掂 LLM provider
-3. [安全避坑指南](/security/essential-guide) — 15 分鐘，**唔好跳過呢步**
-4. [Skills 推薦](/skills/essential-setup) — 10 分鐘，裝啱嘅 Skills 啟動你嘅 Agent
+### 1. 安裝 OpenClaw
 
-```
-裝軟件 → 設 API Key → 做安全設定 → 裝 Skills
-```
+[macOS 完整安裝教學](/install/macos) — 一步步跟住截圖做，包括 Homebrew、Node.js、OpenClaw 安裝同 Gateway 啟動。**約 20–30 分鐘。**
+
+### 2. 設定 API Key
+
+[API Key 申請與設定指南](/install/api-keys) — 搞掂你嘅 LLM provider（OpenAI、Anthropic、DeepSeek、OpenRouter、Google）。**一個 Key 就可以開始用。**
+
+### 3. 做安全設定
+
+[安全避坑指南](/security/essential-guide) — **呢步最重要，唔好跳過。** OpenClaw 有你部機嘅完整操作權限，安全設定做唔好等同將控制權交出去。
 
 <Callout variant="warning">
-**唔好跳過安全設定。** OpenClaw 有完整系統權限，冇做好安全設定等同將你部機嘅控制權交出去。路線 B 步驟 3 係非可選項。
+**唔好跳過安全設定。** ClawJacked 漏洞（CVSS 8.8）已經影響 13.5 萬實例，ClawHub 上 8% 嘅 Skills 係惡意嘅。呢啲唔係理論風險，係真實發生緊嘅事。
 </Callout>
 
 ---
 
-## 路線 C：「我裝咗但出問題」
+## Stage 3 — 進階設定（1 小時）
 
-**預計時間：15 分鐘 ｜ 目標：解決具體問題**
+<Callout variant="tip">
+**目標：將 OpenClaw 調校成你嘅專屬助手，同時控制好費用。**
+</Callout>
 
-1. [Gateway 排錯指南](/troubleshoot/gateway) — 最常見嘅問題，connection refused、service config 過時、auth 失敗
-2. [Token 費用失控](/troubleshoot/token-optimization) — API 費用突然暴增？睇呢篇
+### 1. 自定義 Agent 人格
 
-搵唔到你嘅問題？[聯絡支援](/services/secure-setup)
+[soul.md 完整教學](/start/soul-md) — soul.md 係 OpenClaw 嘅「性格檔案」。設定好之後，Agent 會用你想要嘅語氣、風格、規則嚟做嘢。
 
-```
-Gateway 問題 → 費用問題 → 其他問題
-```
+### 2. 安裝推薦 Skills
 
----
+[Skills 安全安裝指南](/skills/essential-setup) — Skills 係 OpenClaw 嘅擴展功能。呢篇教你點樣安全地揀同裝 Skills，避開惡意 Skills。
 
-## 路線 D：「我裝好想做自動化」
+### 3. 控制費用
 
-**預計時間：20 分鐘 ｜ 目標：設定第一個自動化任務**
-
-1. [Skills 推薦 + 安全審查](/skills/essential-setup) — 揀啱嘅 Skills 係自動化嘅基礎
-2. [WhatsApp 助理教學](/use-cases/whatsapp-assistant) — 最受歡迎嘅 Use Case
-3. [Token 慳錢攻略](/troubleshoot/token-optimization) — 自動化任務唔做好費用控制會燒錢
-
-```
-裝好 Skills → 設定第一個 Use Case → 控制費用
-```
+[Token 慳錢攻略](/troubleshoot/token-optimization) — 學識點樣監控 token 消耗、按任務揀模型、設預算上限。**唔做呢步可能會燒錢。**
 
 ---
 
-## 你唔需要全部睇完先開始
+## Stage 4 — 排錯 + 實戰
 
-呢個網站有幾十篇文章，但你唔需要全讀完先能用 OpenClaw。最有效嘅方法係：
+<Callout variant="info">
+**目標：遇到問題識得自己解決，開始建立實用嘅自動化工作流。**
+</Callout>
 
-**揀你嘅路線 → 跟住走 → 遇到問題先返嚟查**
+### 排錯參考
 
-大部分人路線 B 跑完之後就已經有一個可以用嘅 Agent。其他文章係你需要用到嗰時再查。
+- [Gateway 排錯中心](/troubleshoot/gateway) — 最常見嘅問題：connection refused、service config 過時、auth 失敗。遇到 Gateway 問題先睇呢篇。
+- [Token 費用失控](/troubleshoot/token-optimization) — API 費用突然暴增？睇呢篇。
+
+### 了解更多工具
+
+- [OpenClaw vs n8n](/compare/vs-n8n) — 了解 OpenClaw 同其他自動化工具點樣配合，各自擅長乜。
+- [推薦工具同服務](/resources) — 我自己用緊嘅 API provider、VPS、安全工具。
+
+### 實戰 Use Case
+
+更多實戰教學（WhatsApp 助理、Email 摘要、Telegram Bot、價格監控等）可以喺網站嘅「實戰」分類搵到。
+
+---
+
+## 你嘅進度 Checklist
+
+用呢個 checklist 追蹤你嘅進度：
+
+- [ ] 讀完 Stage 1 — 了解 OpenClaw 係乜同費用
+- [ ] 安裝好 OpenClaw
+- [ ] 設定好至少一個 API Key
+- [ ] **完成安全設定**（最重要！）
+- [ ] 設定好 soul.md
+- [ ] 安裝咗推薦 Skills
+- [ ] 設定好費用上限
+- [ ] 建立咗第一個自動化任務
+
+---
+
+## 唔想自己搞？
+
+如果你覺得太複雜或者冇時間自己設定，我哋提供[代客安裝服務](/services/secure-setup)——30–60 分鐘遠程一對一幫你裝好 OpenClaw，包括安全設定。
 
 ---
 
 ## FAQ
 
-**Q：路線 B 嘅 45 分鐘係真實嘅嗎？**
+**Q：全部跑完要幾耐？**
 
-係平均時間。第一次設定 OpenClaw 嘅人，包括遇到小問題排查，通常需要 30–60 分鐘。如果你熟悉 Terminal 同 npm，可能 20 分鐘就完成。如果係第一次用 Terminal，可能需要 90 分鐘。不過一旦裝好，之後嘅設定都係幾分鐘嘅事。
+Stage 1 + 2 大約 2.5 小時，之後你就有一個安全、可以用嘅 OpenClaw 環境。Stage 3 可以之後慢慢做。如果你熟悉 Terminal 同 npm，可能 1.5 小時就搞掂。
 
-**Q：我係 Windows 用戶，路線 B 都適用嗎？**
+**Q：我係 Windows 用戶，呢條路線都適用嗎？**
 
-適用，步驟大致相同。但本站嘅[安裝教學](/install/macos)係 macOS 版本，Windows 版本有少量指令差異（例如用 `choco` 代替 `brew`）。建議對照官方 OpenClaw 文檔嘅 Windows 部分。
+適用，步驟大致相同。但本站嘅[安裝教學](/install/macos)係 macOS 版本，Windows 版本有少量指令差異（例如用 `choco` 代替 `brew`）。安全設定同 API Key 設定嘅步驟完全一樣。
 
-**Q：路線全部都係連去呢個網站嘅文章嗎？**
+**Q：可唔可以跳過 Stage 1 直接裝？**
 
-係嘅，全部係本站文章，確保內容同版本同步。如果你需要官方技術文檔（例如 API reference、完整 config 文件），可以去 OpenClaw 官方 GitHub repo。
+可以，但我建議至少快速掃一下 [費用拆解](/start/pricing)。好多人裝完先嚟驚 API 費用，其實提前知道就唔會有意外。
+
+**Q：路線入面嘅文章會唔會過時？**
+
+所有文章都標明咗 lastVerified 日期同 openclawVersion。我哋會定期更新確保同最新版本同步。如果你發現任何過時內容，歡迎透過 [About 頁面](/about) 聯絡我哋。
